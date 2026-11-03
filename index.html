@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#090d16">
+<title>Senator Captain Pro</title>
+<style>
+:root{--bg:#090d16;--panel:#0e1422;--btn:#243049;--border:#334263;--text:#f8fafc;--red:#e11d48;--green:#10b981;--yellow:#f59e0b;--blue:#2563eb;--accent:#38bdf8}
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;font-family:system-ui,-apple-system,sans-serif}
+body{margin:0;padding:10px;background:var(--bg);color:var(--text);display:flex;justify-content:center}
+.remote{width:100%;max-width:420px;background:linear-gradient(180deg,#1b253b,#111827);padding:16px;border-radius:30px;box-shadow:0 15px 35px #000b;border:1px solid #2e3d5c}
+.header{display:flex;justify-content:space-between;align-items:center;background:var(--panel);padding:9px 12px;border-radius:15px;margin-bottom:12px;border:1px solid #1f2b42;gap:8px}
+.brand{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:var(--accent);white-space:nowrap}
+.led{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.ip-input{width:135px;min-width:0;background:#161f33;border:1px solid #334263;color:#fff;padding:7px;border-radius:8px;font-size:12px;text-align:center;direction:ltr;font-weight:bold}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+button{background:var(--btn);color:var(--text);border:1px solid var(--border);padding:12px 4px;border-radius:13px;font-size:13px;font-weight:700;box-shadow:0 4px 0 #0a0f1a,0 5px 10px #0005;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #0a0f1a;background:var(--blue)}
+button small{font-size:9px;color:#94a3b8;font-weight:normal;margin-top:2px}
+.b-pwr{background:var(--red)!important;border-color:#fb7185!important}.b-mute{background:#475569!important}.b-menu{background:#1e3a8a!important;border-color:#3b82f6!important}
+.nav-zone{background:var(--panel);padding:12px;border-radius:22px;border:1px solid #1f2b42;margin-bottom:12px;display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:7px;align-items:center}
+.d-btn{background:#1e293b;height:50px;font-size:16px;border-radius:14px}
+.ok-btn{background:radial-gradient(circle,#3b82f6,#1d4ed8)!important;border:2px solid #60a5fa!important;height:62px;border-radius:50%!important;font-size:16px;font-weight:900;box-shadow:0 0 15px #3b82f673!important}
+.rocker{display:flex;flex-direction:column;gap:6px;background:#151e30;padding:6px;border-radius:15px;border:1px solid #243049}
+.rocker span{font-size:10px;color:var(--accent);text-align:center;font-weight:bold}
+.rocker button{height:42px;padding:0;font-size:15px;border-radius:10px}
+.c-red{background:var(--red)!important;border-color:#f43f5e!important;padding:9px 2px;font-size:11px}.c-grn{background:var(--green)!important;border-color:#34d399!important;padding:9px 2px;font-size:11px}.c-ylw{background:var(--yellow)!important;border-color:#fbbf24!important;color:#000!important;padding:9px 2px;font-size:11px}.c-blu{background:var(--blue)!important;border-color:#60a5fa!important;padding:9px 2px;font-size:11px}
+.num-btn{font-size:17px;padding:11px 0;background:#1c263b}
+.sec-title{font-size:11px;color:#94a3b8;text-align:center;margin:10px 0 7px;font-weight:bold}
+.adv-btn{padding:10px 3px;font-size:11px;background:#172033}
+.status-bar{margin-top:10px;background:var(--panel);padding:9px;border-radius:10px;font-size:11px;color:#cbd5e1;text-align:center;min-height:34px;line-height:1.5}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="remote">
+ <div class="header">
+  <div class="brand"><span class="led" id="led"></span> سيناتور القبطان</div>
+  <input type="text" id="ip" class="ip-input" value="192.168.1.18" inputmode="decimal" aria-label="عنوان IP">
+ </div>
+ <div class="grid-4">
+  <button class="b-pwr" onclick="k(42,'باور')">POWER<small>طاقة</small></button>
+  <button onclick="k(22,'TV/Radio')">TV/RAD<small>راديو</small></button>
+  <button onclick="k(41,'مؤقت النوم')">SLEEP<small>نوم</small></button>
+  <button class="b-mute" onclick="k(23,'كتم الصوت')">MUTE<small>كتم</small></button>
+ </div>
+ <div class="grid-4">
+  <button class="b-menu" onclick="k(6,'القائمة Menu')">MENU<small>القائمة</small></button>
+  <button onclick="k(57,'معلومات Info')">INFO<small>معلومات</small></button>
+  <button onclick="k(32,'الدليل EPG')">EPG<small>الدليل</small></button>
+  <button onclick="k(7,'خروج Exit')">EXIT<small>خروج</small></button>
+ </div>
+ <div class="nav-zone">
+  <div class="rocker"><button onclick="k(52,'قناة +')">+</button><span>CH قناة</span><button onclick="k(53,'قناة -')">-</button></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-items:center">
+   <div></div><button class="d-btn" onclick="k(1,'سهم فوق')">▲</button><div></div>
+   <button class="d-btn" onclick="k(3,'سهم يسار')">▶</button><button class="ok-btn" onclick="k(5,'OK')">OK</button><button class="d-btn" onclick="k(4,'سهم يمين')">◀</button>
+   <div></div><button class="d-btn" onclick="k(2,'سهم تحت')">▼</button><div></div>
+  </div>
+  <div class="rocker"><button onclick="k(35,'صوت +')">+</button><span>VOL صوت</span><button onclick="k(36,'صوت -')">-</button></div>
+ </div>
+ <div class="grid-4">
+  <button onclick="k(30,'قائمة الأقمار')">SAT<small>الأقمار</small></button>
+  <button onclick="k(33,'المفضلة FAV')">FAV<small>المفضلة</small></button>
+  <button onclick="k(39,'بحث Find')">FIND<small>بحث</small></button>
+  <button onclick="k(43,'ملفات USB')">USB<small>فلاشة</small></button>
+ </div>
+ <div class="grid-4">
+  <button class="c-red" onclick="k(8,'الأحمر F1')">أحمر F1</button>
+  <button class="c-grn" onclick="k(9,'الأخضر WiFi')">أخضر WiFi</button>
+  <button class="c-ylw" onclick="k(10,'الأصفر IP')">أصفر IP</button>
+  <button class="c-blu" onclick="k(11,'الأزرق Apps')">أزرق Apps</button>
+ </div>
+ <div class="grid-3">
+  <button class="num-btn" onclick="k(13,'رقم 1')">1</button><button class="num-btn" onclick="k(14,'رقم 2')">2</button><button class="num-btn" onclick="k(15,'رقم 3')">3</button>
+  <button class="num-btn" onclick="k(16,'رقم 4')">4</button><button class="num-btn" onclick="k(17,'رقم 5')">5</button><button class="num-btn" onclick="k(18,'رقم 6')">6</button>
+  <button class="num-btn" onclick="k(19,'رقم 7')">7</button><button class="num-btn" onclick="k(20,'رقم 8')">8</button><button class="num-btn" onclick="k(21,'رقم 9')">9</button>
+  <button onclick="k(54,'لغة الصوت')">AUDIO<small>الصوت</small></button><button class="num-btn" onclick="k(0,'رقم 0')">0</button><button onclick="k(31,'الترجمة')">SUB<small>ترجمة</small></button>
+ </div>
+ <div class="sec-title">⚡ اختصارات الشفرات والشاشة والتسجيل</div>
+ <div class="grid-4">
+  <button class="adv-btn" onclick="k(38,'شفرة BISS')">BISS Key</button><button class="adv-btn" onclick="k(37,'قائمة ECM')">ECM List</button><button class="adv-btn" onclick="k(12,'قائمة الوظائف')">FUNC</button><button class="adv-btn" onclick="k(44,'زر F1 إضافي')">F1 Extra</button>
+  <button class="adv-btn" onclick="k(56,'تقريب Zoom')">ZOOM</button><button class="adv-btn" onclick="k(24,'دقة الشاشة')">DISPLAY</button><button class="adv-btn" onclick="k(25,'حجم الشاشة')">ASPECT</button><button class="adv-btn" onclick="k(34,'تيليتكست TXT')">TXT</button>
+  <button class="adv-btn" style="color:#f87171" onclick="k(58,'تسجيل REC')">● REC</button><button class="adv-btn" onclick="k(55,'إيقاف مؤقت')">⏸ إيقاف</button><button class="adv-btn" onclick="k(63,'توقف Stop')">⏹ توقف</button><button class="adv-btn" onclick="k(26,'مؤقت التسجيل')">TIMER</button>
+ </div>
+ <div class="status-bar" id="st">الريموت جاهز — أدخل عنوان IP الصحيح للرسيفر</div>
+</div>
+<script>
+const ipInput=document.getElementById('ip');
+ipInput.value=window.Captain ? Captain.getSavedIp() : '192.168.1.18';
+ipInput.addEventListener('change',()=>Captain.saveIp(ipInput.value.trim()));
+function nativeResult(ok,msg){
+ document.getElementById('st').textContent=(ok?'✅ ':'❌ ')+msg;
+ const led=document.getElementById('led');
+ led.style.background=ok?'#10b981':'#e11d48';
+ led.style.boxShadow=ok?'0 0 8px #10b981':'0 0 8px #e11d48';
+}
+function k(code,name){
+ if(navigator.vibrate) navigator.vibrate(25);
+ const ip=ipInput.value.trim();
+ document.getElementById('st').textContent='جاري إرسال: '+name+' (كود '+code+')...';
+ document.getElementById('led').style.background='#f59e0b';
+ Captain.saveIp(ip);
+ Captain.sendKey(ip,String(code),name);
+}
+</script>
+</body>
+</html>
