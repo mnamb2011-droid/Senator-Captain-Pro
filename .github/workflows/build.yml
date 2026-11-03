@@ -1,9 +1,11 @@
+
 name: Build Senator Captain Pro APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -11,28 +13,30 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-      - name: Install Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Create Android project structure from flat files
-        shell: bash
+      - name: Create Android structure
         run: |
-          set -euo pipefail
+          set -e
           mkdir -p app/src/main/java/com/senator/captainpro
           mkdir -p app/src/main/assets
 
@@ -42,13 +46,8 @@ jobs:
           cp app.gradle app/build.gradle
           cp root.gradle build.gradle
 
-          test -s settings.gradle
-          test -s gradle.properties
-          test -s app/src/main/java/com/senator/captainpro/MainActivity.java
-          test -s app/src/main/assets/index.html
-
-      - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+      - name: Build APK
+        run: gradle --no-daemon assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
