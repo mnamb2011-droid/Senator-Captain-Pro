@@ -14,6 +14,7 @@
 --accent:#13d7ff;
 --edge:#168cff;
 --glow:rgba(0,190,255,.4);
+--button-scale:1;
 }
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:#fff;font-family:Arial,system-ui,sans-serif}
@@ -21,284 +22,152 @@ button,input,select{font:inherit}
 button{color:inherit;touch-action:manipulation;cursor:pointer}
 
 #app{
-height:100dvh;
-height:100svh;
-width:100%;
-max-width:560px;
-margin:auto;
+height:100dvh;height:100svh;width:100%;max-width:560px;margin:auto;
 padding:env(safe-area-inset-top) 7px env(safe-area-inset-bottom);
-display:grid;
-grid-template-rows:54px minmax(0,1fr);
-gap:6px;
-overflow:hidden;
+display:grid;grid-template-rows:54px minmax(0,1fr);gap:6px;overflow:hidden
 }
-
 header{
-display:grid;
-grid-template-columns:42px minmax(0,1fr) 38px 42px;
-align-items:center;
-gap:7px;
-padding:4px 7px;
-border:1px solid var(--edge);
-border-radius:15px;
+display:grid;grid-template-columns:42px minmax(0,1fr) 38px 42px;
+align-items:center;gap:7px;padding:4px 7px;
+border:1px solid var(--edge);border-radius:15px;
 background:linear-gradient(135deg,#142b4e,#07152d);
-box-shadow:0 0 14px var(--glow);
+box-shadow:0 0 14px var(--glow)
 }
-
 .brand{text-align:center;line-height:1.03;min-width:0}
 .brand strong{font-size:clamp(16px,4.8vw,22px);font-style:italic;letter-spacing:.5px;text-shadow:0 0 9px var(--accent)}
 .brand small{display:block;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.2px}
-
 .headbtn{
-height:38px;
-border-radius:12px;
-border:1px solid #5b9fe4;
+height:38px;border-radius:12px;border:1px solid #5b9fe4;
 background:linear-gradient(145deg,#164b91,#091a38);
-box-shadow:0 3px 0 #020817,0 0 9px var(--glow);
-font-size:19px;
+box-shadow:0 3px 0 #020817,0 0 9px var(--glow);font-size:19px
 }
-.headbtn.power{background:linear-gradient(145deg,#ff5369,#a9002a)}
 .headbtn.edit.active{background:linear-gradient(145deg,#ffca3b,#9c5700);color:#1b1300}
 
 #remote{
-min-height:0;
-display:grid;
-grid-template-rows:36px minmax(0,1.18fr) 44px 44px minmax(105px,.92fr) 54px 42px 42px 42px 42px;
-gap:5px;
-padding:7px;
-border-radius:19px;
-border:1px solid var(--edge);
+min-height:0;overflow-y:auto;overflow-x:hidden;
+display:flex;flex-direction:column;gap:5px;
+padding:7px;border-radius:19px;border:1px solid var(--edge);
 background:linear-gradient(155deg,#152b4d,#07152c 62%,#111b39);
-box-shadow:0 0 18px var(--glow);
-overflow:hidden;
+box-shadow:0 0 18px var(--glow)
 }
-
-.row{display:grid;gap:5px;min-height:0}
+.row{display:grid;gap:5px;min-height:38px}
 .four{grid-template-columns:repeat(4,minmax(0,1fr))}
-.three{grid-template-columns:repeat(3,minmax(0,1fr))}
-
 .key{
-min-width:0;
-min-height:0;
-border:1px solid #6e94c4;
-border-radius:11px;
-padding:2px 1px;
-background:linear-gradient(155deg,#38577f 0%,#172d4e 38%,#08162e 100%);
+min-width:0;min-height:34px;border:1px solid #6e94c4;
+border-radius:11px;padding:3px 1px;
+background:linear-gradient(155deg,#38577f,#172d4e 38%,#08162e);
 box-shadow:inset 0 1px 2px #ffffff55,0 3px 0 #020916,0 0 7px var(--glow);
-font-weight:850;
-font-size:clamp(10px,3vw,15px);
-line-height:1.05;
-text-align:center;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-gap:1px;
-overflow:hidden;
+font-weight:850;font-size:calc(clamp(10px,3vw,15px) * var(--button-scale));
+line-height:1.05;text-align:center;
+display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;
+overflow:hidden;position:relative
 }
-.key:active{transform:translateY(2px);filter:brightness(1.35)}
+.key:active{filter:brightness(1.35);transform:translateY(2px)}
 .key.red{background:linear-gradient(145deg,#ff586b,#a9002b);border-color:#ff9cac}
 .key.green{background:linear-gradient(145deg,#1be6a0,#006b4b);border-color:#69ffc7}
 .key.yellow{background:linear-gradient(145deg,#ffe05a,#b46a00);border-color:#fff0a0;color:#241600}
 .key.blue{background:linear-gradient(145deg,#27b7ff,#0645b6);border-color:#91eaff}
 .key .subtxt{font-size:8px;color:#b9d8f4;font-weight:600}
-
 .numgrid{
-display:grid;
-grid-template-columns:repeat(3,minmax(0,1fr));
-grid-template-rows:repeat(4,minmax(0,1fr));
-gap:5px;
-min-height:0;
+display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+grid-template-rows:repeat(4,minmax(42px,1fr));gap:5px
 }
-.numgrid .key{font-size:clamp(17px,5vw,25px);border-radius:13px}
-.numgrid .key.smallnum{font-size:clamp(10px,3vw,14px)}
-
-.functionrow .key{font-size:clamp(9px,2.8vw,13px)}
-.colorrow .key{font-size:clamp(10px,3vw,14px)}
-
-.navarea{
-display:grid;
-grid-template-columns:.8fr 1.7fr .8fr;
-gap:5px;
-min-height:0;
-}
+.numgrid .key{font-size:calc(clamp(17px,5vw,25px) * var(--button-scale));border-radius:13px}
+.numgrid .smallnum{font-size:calc(clamp(10px,3vw,14px) * var(--button-scale))}
+.navarea{display:grid;grid-template-columns:.8fr 1.7fr .8fr;gap:5px;min-height:140px}
 .navside{display:grid;grid-template-rows:1fr 1fr;gap:5px}
-
 .dpad{
-display:grid;
-grid-template:1fr 1fr 1fr/1fr 1fr 1fr;
-gap:4px;
-padding:4px;
-border-radius:50%;
-background:radial-gradient(circle,#1c477a,#06152c);
-border:2px solid var(--accent);
-box-shadow:0 0 12px var(--glow);
-min-height:0;
+display:grid;grid-template:1fr 1fr 1fr/1fr 1fr 1fr;gap:4px;
+padding:4px;border-radius:50%;background:radial-gradient(circle,#1c477a,#06152c);
+border:2px solid var(--accent);box-shadow:0 0 12px var(--glow);min-height:0
 }
-.dpad .key{
-border-radius:40%;
-font-size:clamp(15px,5vw,24px);
-background:linear-gradient(145deg,#375b89,#0a1c38);
-}
-.dpad .up{grid-area:1/2}
-.dpad .left{grid-area:2/1}
-.dpad .ok{
-grid-area:2/2;
-border-radius:50%;
-background:radial-gradient(circle,#078fff,#071b57);
-border:2px solid #67eaff;
-font-size:clamp(15px,4.8vw,23px);
-box-shadow:0 0 13px #00bfff;
-}
-.dpad .right{grid-area:2/3}
-.dpad .down{grid-area:3/2}
+.dpad .key{border-radius:40%;font-size:calc(clamp(15px,5vw,24px) * var(--button-scale));background:linear-gradient(145deg,#375b89,#0a1c38)}
+.dpad .up{grid-area:1/2}.dpad .left{grid-area:2/1}
+.dpad .ok{grid-area:2/2;border-radius:50%;background:radial-gradient(circle,#078fff,#071b57);border:2px solid #67eaff;box-shadow:0 0 13px #00bfff}
+.dpad .right{grid-area:2/3}.dpad .down{grid-area:3/2}
 
 .volumearea{
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
 gap:5px;
-min-height:0;
+min-height:55px
 }
-.volumearea .key{font-size:clamp(9px,2.7vw,13px)}
-.tall{font-size:clamp(12px,3.6vw,18px)!important}
 .midpair{display:grid;grid-template-rows:1fr 1fr;gap:5px}
-.media .key{font-size:clamp(15px,4vw,20px)}
-.misc .key{font-size:clamp(10px,3vw,14px)}
-
+.media .key{font-size:calc(clamp(15px,4vw,20px) * var(--button-scale))}
+.customgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 .hidden-key{display:none!important}
-
+.section-title{
+text-align:center;color:var(--accent);font-size:11px;font-weight:bold;
+padding:3px;border-bottom:1px solid #ffffff20
+}
 .modal{
-position:fixed;
-inset:0;
-z-index:10;
-background:#020817dc;
-display:none;
-align-items:center;
-justify-content:center;
-padding:14px;
+position:fixed;inset:0;z-index:10;background:#020817dc;
+display:none;align-items:center;justify-content:center;padding:14px
 }
 .modal.show{display:flex}
-
 .dialog{
-width:min(100%,420px);
-max-height:88dvh;
-overflow:auto;
-padding:15px;
-border:1px solid var(--accent);
-border-radius:18px;
-background:linear-gradient(145deg,#19365e,#07152c);
-box-shadow:0 0 24px var(--glow);
+width:min(100%,430px);max-height:90dvh;overflow:auto;padding:15px;
+border:1px solid var(--accent);border-radius:18px;
+background:linear-gradient(145deg,#19365e,#07152c);box-shadow:0 0 24px var(--glow)
 }
 .dialog h2{font-size:18px;margin:0 0 12px}
 .dialog h3{font-size:14px;margin:14px 0 7px;color:var(--accent)}
 .field{display:block;margin:9px 0}
 .field span{display:block;font-size:12px;color:#c8dcf5;margin-bottom:5px}
 .field input,.field select{
-width:100%;
-padding:10px;
-border:1px solid #5279a8;
-border-radius:9px;
-background:#06152c;
-color:white;
+width:100%;padding:10px;border:1px solid #5279a8;border-radius:9px;
+background:#06152c;color:white
 }
-.field input[type=checkbox]{width:auto}
 .field input[dir=ltr]{direction:ltr;text-align:center}
-
 .actions{display:flex;gap:7px;margin-top:13px}
 .actions button,.smallbtn{
-flex:1;
-padding:10px;
-border:1px solid #5ba8e9;
-border-radius:9px;
-background:linear-gradient(145deg,#1678d4,#09366d);
-font-weight:800;
+flex:1;padding:10px;border:1px solid #5ba8e9;border-radius:9px;
+background:linear-gradient(145deg,#1678d4,#09366d);font-weight:800
 }
 .actions .secondary{background:#344761;border-color:#657b98}
-
 .themegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .themegrid button{
-padding:10px 2px;
-border-radius:9px;
-border:1px solid #6b8eb9;
-background:#10294b;
-font-size:11px;
+padding:10px 2px;border-radius:9px;border:1px solid #6b8eb9;
+background:#10294b;font-size:11px
 }
-
 .codebox{
-max-height:150px;
-overflow:auto;
-padding:8px;
-border:1px solid #395d87;
-border-radius:9px;
-background:#061329;
-font-size:11px;
-line-height:1.7;
+max-height:145px;overflow:auto;padding:8px;border:1px solid #395d87;
+border-radius:9px;background:#061329;font-size:11px;line-height:1.7
 }
-.codeitem{
-display:flex;
-justify-content:space-between;
-gap:8px;
-border-bottom:1px solid #ffffff18;
-padding:4px 0;
-}
+.codeitem{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #ffffff18;padding:4px 0}
 #bissList{display:grid;gap:6px}
-.bissitem{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:8px;
-padding:7px;
-background:#07162d;
-border-radius:8px;
-font-size:11px;
-}
+.bissitem{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px;background:#07162d;border-radius:8px;font-size:11px}
 #toast{
-position:fixed;
-z-index:30;
-bottom:12px;
-left:10px;
-right:10px;
-width:fit-content;
-max-width:calc(100% - 20px);
-margin:auto;
-padding:10px 15px;
-border:1px solid var(--accent);
-border-radius:11px;
-background:#10274a;
-color:white;
-font-size:12px;
-opacity:0;
-visibility:hidden;
-transition:.2s;
-pointer-events:none;
+position:fixed;z-index:30;bottom:12px;left:10px;right:10px;width:fit-content;
+max-width:calc(100% - 20px);margin:auto;padding:10px 15px;
+border:1px solid var(--accent);border-radius:11px;background:#10274a;color:white;
+font-size:12px;opacity:0;visibility:hidden;transition:.2s;pointer-events:none
 }
 #toast.show{opacity:1;visibility:visible}
-
+.range-line{display:flex;align-items:center;gap:10px}
+.range-line input{flex:1;direction:ltr}
+.range-line b{min-width:45px;text-align:center;color:var(--accent)}
 @media(max-height:700px){
 #app{grid-template-rows:48px minmax(0,1fr);gap:4px;padding-left:4px;padding-right:4px}
 header{padding:3px 6px}
-#remote{grid-template-rows:30px minmax(0,1.1fr) 37px 37px minmax(90px,.88fr) 46px 36px 36px 36px 36px;gap:4px;padding:5px}
+#remote{gap:4px;padding:5px}
 .key{border-radius:8px}
-.numgrid .key{border-radius:10px}
+.numgrid{grid-template-rows:repeat(4,minmax(38px,1fr))}
+.navarea{min-height:125px}
 }
 @media(max-width:360px){
 #remote{gap:3px;padding:4px}
 .row,.navarea,.volumearea{gap:3px}
-.key{font-size:9px}
-.numgrid .key{font-size:17px}
+.key{font-size:calc(9px * var(--button-scale))}
 }
 </style>
 </head>
 
 <body>
 <div id="app">
-
 <header>
-<button class="headbtn" onclick="send('23','MUTE')">🔇</button>
-<div class="brand">
-<strong>SENATOR</strong>
-<small>CAPTAIN PRO</small>
-</div>
+<button class="headbtn" onclick="sendCodes(['23'],'MUTE')">🔇</button>
+<div class="brand"><strong>SENATOR</strong><small>CAPTAIN PRO</small></div>
 <button class="headbtn" onclick="openSettings()">⚙</button>
 <button class="headbtn edit" id="editToggle" onclick="toggleEdit()">✎</button>
 </header>
@@ -327,26 +196,25 @@ header{padding:3px 6px}
 <button class="key" data-id="p1">P1</button>
 </div>
 
-<div class="row four functionrow">
+<div class="row four">
 <button class="key" data-id="sub">SUB</button>
 <button class="key" data-id="zoom">ZOOM</button>
 <button class="key" data-id="motor">MOTOR</button>
 <button class="key" data-id="txt">TXT</button>
 </div>
 
-<div class="row four colorrow">
-<button class="key red" data-id="audio">AUDIO</button>
-<button class="key green" data-id="app">APP</button>
-<button class="key yellow" data-id="wifi">📶 WiFi</button>
-<button class="key blue" data-id="info">INFO</button>
+<div class="row four">
+<button class="key red" data-id="f1">F1</button>
+<button class="key green" data-id="wifi">WiFi</button>
+<button class="key yellow" data-id="ipkey">IP</button>
+<button class="key blue" data-id="apps">APP</button>
 </div>
 
 <div class="navarea">
 <div class="navside">
 <button class="key" data-id="menu">MENU</button>
-<button class="key" data-id="sat2">SAT</button>
+<button class="key" data-id="satlist">SAT</button>
 </div>
-
 <div class="dpad">
 <button class="key up" data-id="up">▲</button>
 <button class="key left" data-id="left">◀</button>
@@ -354,67 +222,89 @@ header{padding:3px 6px}
 <button class="key right" data-id="right">▶</button>
 <button class="key down" data-id="down">▼</button>
 </div>
-
 <div class="navside">
 <button class="key" data-id="exit">EXIT</button>
 <button class="key" data-id="find">FIND</button>
 </div>
 </div>
 
+<!-- أزرار الصوت والقنوات مستقلة -->
 <div class="volumearea">
-<button class="key tall" data-id="vol">＋<span class="subtxt">VOL</span>－</button>
+<button class="key" data-id="volup">＋ VOL</button>
 <div class="midpair">
 <button class="key" data-id="fav">FAV</button>
-<button class="key" data-id="ipkey">IP</button>
+<button class="key" data-id="page">PAGE</button>
 </div>
-<button class="key tall" data-id="page">＋<span class="subtxt">PAGE</span>－</button>
+<button class="key" data-id="voldown">− VOL</button>
 </div>
 
-<div class="row four misc">
+<div class="row four">
+<button class="key" data-id="chup">CH +</button>
+<button class="key" data-id="chdown">CH −</button>
 <button class="key" data-id="hd">HD</button>
 <button class="key" data-id="epg">EPG</button>
-<button class="key" data-id="pausekey">PAUSE</button>
-<button class="key" data-id="sw">SW</button>
 </div>
 
-<div class="row four media">
+<div class="row four">
+<button class="key" data-id="recordtimer">REC TIMER</button>
+<button class="key" data-id="sleep">SLEEP</button>
+<button class="key" data-id="screen">SCREEN</button>
+<button class="key" data-id="radio">RADIO/TV</button>
+</div>
+
+<div class="row four">
 <button class="key" data-id="rewind">◀◀</button>
 <button class="key" data-id="fast">▶▶</button>
 <button class="key" data-id="previous">|◀</button>
 <button class="key" data-id="next">▶|</button>
 </div>
 
-<div class="row four media">
+<div class="row four">
 <button class="key" data-id="play">▶</button>
 <button class="key" data-id="pause">Ⅱ</button>
-<button class="key" data-id="stop">■</button>
-<button class="key red" data-id="record">●</button>
+<button class="key" data-id="stop">■ STOP</button>
+<button class="key red" data-id="record">● REC</button>
 </div>
 
-<div class="row four misc">
-<button class="key" data-id="f2">F2</button>
-<button class="key" data-id="f3">F3</button>
+<div class="row four">
 <button class="key" data-id="usb">USB</button>
-<button class="key" data-id="help">HELP</button>
+<button class="key" data-id="biss">BISS</button>
+<button class="key" data-id="ecm">ECM</button>
+<button class="key" data-id="display">DISPLAY</button>
 </div>
+
+<div class="row four">
+<button class="key" data-id="function">FUNCTION</button>
+<button class="key" data-id="silent">SILENT</button>
+<button class="key" data-id="audio">AUDIO</button>
+<button class="key" data-id="f4">F4</button>
+</div>
+
+<div class="row four">
+<button class="key" data-id="screeninfo">INFO</button>
+<button class="key" data-id="continueRec">CONT.REC</button>
+<button class="key" data-id="f1red">RED</button>
+<button class="key" data-id="f1green">GREEN</button>
+</div>
+
+<div class="section-title">أزرار إضافية</div>
+<div class="customgrid" id="customGrid"></div>
 
 </div>
 </div>
 
-<!-- الإعدادات -->
 <div class="modal" id="settingsModal" onclick="if(event.target===this)closeModal('settingsModal')">
 <div class="dialog">
-<h2>⚙ إعدادات Senator Captain Pro</h2>
+<h2>⚙ إعدادات التطبيق</h2>
 
-<h3>الاتصال بالرسيفر</h3>
-<label class="field">
-<span>عنوان IP</span>
-<input id="ip" inputmode="decimal" value="192.168.1.18" dir="ltr">
-</label>
+<h3>اتصال الرسيفر</h3>
+<label class="field"><span>عنوان IP</span><input id="ip" value="192.168.1.18" inputmode="decimal" dir="ltr"></label>
+<div class="codebox">منفذ الاتصال: TCP 20000</div>
 
-<div class="codebox">
-منفذ G-MScreen: <b>20000</b><br>
-الاتصال TCP مباشر، ويبدأ عند الضغط على أول زر تحكم.
+<h3>حجم الأزرار</h3>
+<div class="range-line">
+<input id="buttonSize" type="range" min="0.75" max="1.35" step="0.05" value="1" oninput="changeButtonSize(this.value)">
+<b id="sizeValue">100%</b>
 </div>
 
 <h3>الثيمات</h3>
@@ -427,19 +317,23 @@ header{padding:3px 6px}
 <button onclick="setTheme('cyan')">سماوي</button>
 </div>
 
-<h3>أكواد الأزرار المعروفة حاليًا</h3>
+<h3>إضافة زر جديد</h3>
+<label class="field"><span>اسم الزر</span><input id="newName" placeholder="مثال: YouTube"></label>
+<label class="field"><span>الكود أو الأكواد (افصل بينها بفاصلة)</span><input id="newCode" placeholder="مثال: 12 أو 12,24" dir="ltr"></label>
+<label class="field"><span>لون الزر</span>
+<select id="newColor">
+<option value="">افتراضي</option><option value="red">أحمر</option>
+<option value="green">أخضر</option><option value="yellow">أصفر</option><option value="blue">أزرق</option>
+</select></label>
+<button class="smallbtn" onclick="addCustomButton()">＋ إضافة الزر إلى الريموت</button>
+
+<h3>الأكواد المعتمدة</h3>
 <div class="codebox" id="knownCodes"></div>
 
-<h3>إدارة مفاتيح BISS</h3>
-<label class="field">
-<span>اسم القناة / التردد</span>
-<input id="bissName" placeholder="اسم القناة أو التردد">
-</label>
-<label class="field">
-<span>مفتاح BISS</span>
-<input id="bissKey" placeholder="أدخل المفتاح يدويًا" dir="ltr">
-</label>
-<button class="smallbtn" onclick="addBiss()">حفظ مفتاح BISS محليًا</button>
+<h3>مفاتيح BISS المحفوظة</h3>
+<label class="field"><span>اسم القناة أو التردد</span><input id="bissName" placeholder="اسم القناة"></label>
+<label class="field"><span>المفتاح</span><input id="bissKey" dir="ltr" placeholder="مفتاح BISS"></label>
+<button class="smallbtn" onclick="addBiss()">حفظ المفتاح محليًا</button>
 <div id="bissList"></div>
 
 <div class="actions">
@@ -449,38 +343,20 @@ header{padding:3px 6px}
 </div>
 </div>
 
-<!-- تعديل الأزرار -->
 <div class="modal" id="editModal" onclick="if(event.target===this)closeModal('editModal')">
 <div class="dialog">
 <h2>✎ تعديل الزر</h2>
-
-<label class="field">
-<span>اسم الزر الظاهر</span>
-<input id="editLabel">
-</label>
-
-<label class="field">
-<span>كود الأمر الذي يرسله للرسيفر</span>
-<input id="editCode" inputmode="numeric" dir="ltr" placeholder="اتركه فارغًا إذا لم يُعرف الكود">
-</label>
-
-<label class="field">
-<span>لون الزر</span>
+<label class="field"><span>اسم الزر</span><input id="editLabel"></label>
+<label class="field"><span>الكود أو الأكواد</span><input id="editCode" dir="ltr"></label>
+<label class="field"><span>اللون</span>
 <select id="editColor">
-<option value="">افتراضي</option>
-<option value="red">أحمر</option>
-<option value="green">أخضر</option>
-<option value="yellow">أصفر</option>
-<option value="blue">أزرق</option>
-</select>
-</label>
-
-<label class="field">
-<span><input id="editHidden" type="checkbox"> إخفاء هذا الزر من الريموت</span>
-</label>
-
+<option value="">افتراضي</option><option value="red">أحمر</option>
+<option value="green">أخضر</option><option value="yellow">أصفر</option><option value="blue">أزرق</option>
+</select></label>
+<label class="field"><span><input id="editHidden" type="checkbox"> إخفاء الزر</span></label>
 <div class="actions">
 <button onclick="saveButtonEdit()">حفظ التعديل</button>
+<button class="secondary" onclick="deleteSelectedButton()">حذف الزر</button>
 <button class="secondary" onclick="closeModal('editModal')">إلغاء</button>
 </div>
 </div>
@@ -492,86 +368,96 @@ header{padding:3px 6px}
 const $=id=>document.getElementById(id);
 
 const defaults={
-sat:{label:'SAT',code:''},
-tvr:{label:'TV/R',code:''},
-timer:{label:'TIMER',code:''},
-mode:{label:'MODE',code:''},
+sat:{label:'SAT',codes:[]},
+tvr:{label:'TV/R',codes:[]},
+timer:{label:'TIMER',codes:['26']},
+mode:{label:'MODE',codes:['12']},
 
-n1:{label:'1',code:'13'},n2:{label:'2',code:'14'},n3:{label:'3',code:'15'},
-n4:{label:'4',code:'16'},n5:{label:'5',code:'17'},n6:{label:'6',code:'18'},
-n7:{label:'7',code:'19'},n8:{label:'8',code:'20'},n9:{label:'9',code:'21'},
-recall:{label:'RECALL',code:''},n0:{label:'0',code:'0'},p1:{label:'P1',code:''},
+n1:{label:'1',codes:['13']},n2:{label:'2',codes:['14']},n3:{label:'3',codes:['15']},
+n4:{label:'4',codes:['16']},n5:{label:'5',codes:['17']},n6:{label:'6',codes:['18']},
+n7:{label:'7',codes:['19']},n8:{label:'8',codes:['20']},n9:{label:'9',codes:['21']},
+recall:{label:'RECALL',codes:[]},n0:{label:'0',codes:[]},p1:{label:'P1',codes:[]},
 
-sub:{label:'SUB',code:'31'},zoom:{label:'ZOOM',code:''},
-motor:{label:'MOTOR',code:''},txt:{label:'TXT',code:''},
+sub:{label:'SUB',codes:['31']},
+zoom:{label:'ZOOM',codes:['56']},
+motor:{label:'MOTOR',codes:[]},
+txt:{label:'TXT',codes:['34']},
 
-audio:{label:'AUDIO',code:'54',color:'red'},
-app:{label:'APP',code:'',color:'green'},
-wifi:{label:'📶 WiFi',code:'',color:'yellow'},
-info:{label:'INFO',code:'57',color:'blue'},
+f1:{label:'F1',codes:['8','44'],color:'red'},
+wifi:{label:'WiFi',codes:['9'],color:'green'},
+ipkey:{label:'IP',codes:['10'],color:'yellow'},
+apps:{label:'APP',codes:['11'],color:'blue'},
 
-menu:{label:'MENU',code:'6'},
-sat2:{label:'SAT',code:''},
-up:{label:'▲',code:'1'},
-left:{label:'◀',code:'3'},
-ok:{label:'OK',code:'5'},
-right:{label:'▶',code:'4'},
-down:{label:'▼',code:'2'},
-exit:{label:'EXIT',code:'7'},
-find:{label:'FIND',code:''},
+menu:{label:'MENU',codes:['6','68']},
+satlist:{label:'SAT',codes:['30']},
+up:{label:'▲',codes:['1']},
+left:{label:'◀',codes:['3']},
+ok:{label:'OK',codes:['5']},
+right:{label:'▶',codes:['4']},
+down:{label:'▼',codes:['2']},
+exit:{label:'EXIT',codes:['7']},
+find:{label:'FIND',codes:['39']},
 
-vol:{label:'＋ VOL －',code:'35'},
-fav:{label:'FAV',code:'33'},
-ipkey:{label:'IP',code:''},
-page:{label:'＋ PAGE －',code:'52'},
+volup:{label:'＋ VOL',codes:['35']},
+voldown:{label:'− VOL',codes:['36']},
+chup:{label:'CH +',codes:['52']},
+chdown:{label:'CH −',codes:['53']},
+fav:{label:'FAV',codes:['33']},
+page:{label:'PAGE',codes:[]},
 
-hd:{label:'HD',code:''},
-epg:{label:'EPG',code:'32'},
-pausekey:{label:'PAUSE',code:''},
-sw:{label:'SW',code:''},
+hd:{label:'HD',codes:[]},
+epg:{label:'EPG',codes:['32']},
+recordtimer:{label:'REC TIMER',codes:['26']},
+sleep:{label:'SLEEP',codes:['41']},
+screen:{label:'SCREEN',codes:['25']},
+radio:{label:'RADIO/TV',codes:['22']},
 
-rewind:{label:'◀◀',code:''},
-fast:{label:'▶▶',code:''},
-previous:{label:'|◀',code:''},
-next:{label:'▶|',code:''},
-play:{label:'▶',code:''},
-pause:{label:'Ⅱ',code:''},
-stop:{label:'■',code:''},
-record:{label:'●',code:''},
+rewind:{label:'◀◀',codes:[]},
+fast:{label:'▶▶',codes:[]},
+previous:{label:'|◀',codes:[]},
+next:{label:'▶|',codes:[]},
+play:{label:'▶',codes:[]},
+pause:{label:'Ⅱ',codes:[]},
+stop:{label:'■ STOP',codes:['55','63']},
+record:{label:'● REC',codes:['58']},
 
-f2:{label:'F2',code:'9'},
-f3:{label:'F3',code:'10'},
-usb:{label:'USB',code:'43'},
-help:{label:'HELP',code:''},
+usb:{label:'USB',codes:['43']},
+biss:{label:'BISS',codes:['38']},
+ecm:{label:'ECM',codes:['37']},
+display:{label:'DISPLAY',codes:['24','67']},
 
-mute:{label:'MUTE',code:'23'},
-power:{label:'POWER',code:'42'}
+function:{label:'FUNCTION',codes:['12']},
+silent:{label:'SILENT',codes:['23']},
+audio:{label:'AUDIO',codes:['54']},
+f4:{label:'F4',codes:['11'],color:'blue'},
+screeninfo:{label:'INFO',codes:['57']},
+continueRec:{label:'CONT.REC',codes:['61']},
+f1red:{label:'RED',codes:['8','44'],color:'red'},
+f1green:{label:'GREEN',codes:['9'],color:'green'}
 };
 
 function load(key,fallback){
 try{
-const value=localStorage.getItem(key);
-return value?JSON.parse(value):JSON.parse(JSON.stringify(fallback));
-}catch(e){
-return JSON.parse(JSON.stringify(fallback));
-}
+const v=localStorage.getItem(key);
+return v?JSON.parse(v):JSON.parse(JSON.stringify(fallback));
+}catch(e){return JSON.parse(JSON.stringify(fallback))}
 }
 
-let buttons=load('scp_buttons',defaults);
+let buttons=load('scp_buttons_v2',defaults);
 let editing=false;
 let selectedId=null;
 let toastTimer=null;
 
 function persist(){
-localStorage.setItem('scp_buttons',JSON.stringify(buttons));
+localStorage.setItem('scp_buttons_v2',JSON.stringify(buttons));
 }
 
-function toast(message){
+function toast(msg){
 const t=$('toast');
-t.textContent=message;
+t.textContent=msg;
 t.classList.add('show');
 clearTimeout(toastTimer);
-toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
 function paintButtons(){
@@ -582,84 +468,121 @@ if(!b)return;
 
 el.textContent=b.label;
 el.classList.toggle('hidden-key',!!b.hidden);
-
 ['red','green','yellow','blue'].forEach(c=>el.classList.remove(c));
 if(b.color)el.classList.add(b.color);
-
-el.title=editing?'اضغط لتعديل '+b.label:'';
 el.style.outline=editing?'1px dashed #ffd45a':'';
+});
+renderCustomButtons();
+}
+
+function renderCustomButtons(){
+const grid=$('customGrid');
+grid.innerHTML='';
+
+Object.keys(buttons).filter(id=>id.startsWith('custom_')).forEach(id=>{
+const b=buttons[id];
+if(b.hidden)return;
+
+const el=document.createElement('button');
+el.className='key'+(b.color?' '+b.color:'');
+el.textContent=b.label;
+el.onclick=()=>{
+if(editing){openEditor(id);return}
+sendButton(b);
+};
+grid.appendChild(el);
 });
 }
 
 function toggleEdit(){
 editing=!editing;
 $('editToggle').classList.toggle('active',editing);
-toast(editing?
-'وضع التعديل: اضغط على أي زر لتغيير اسمه أو كوده أو لونه أو إخفائه':
-'تم إغلاق وضع التعديل');
+paintButtons();
+toast(editing?'وضع تعديل الأزرار: اضغط على الزر لتعديله':'تم إغلاق وضع التعديل');
 }
 
 function openEditor(id){
 selectedId=id;
-const b=buttons[id]||{label:id,code:''};
-
+const b=buttons[id];
 $('editLabel').value=b.label;
-$('editCode').value=b.code??'';
+$('editCode').value=(b.codes||[]).join(',');
 $('editColor').value=b.color||'';
 $('editHidden').checked=!!b.hidden;
-
 $('editModal').classList.add('show');
+}
+
+function parseCodes(value){
+return value.split(',').map(x=>x.trim()).filter(x=>x!=='');
 }
 
 function saveButtonEdit(){
 if(!selectedId)return;
-
-const b=buttons[selectedId]||{};
-
-b.label=$('editLabel').value.trim()||selectedId;
-b.code=$('editCode').value.trim();
+const b=buttons[selectedId];
+b.label=$('editLabel').value.trim()||'زر';
+b.codes=parseCodes($('editCode').value);
 b.color=$('editColor').value;
 b.hidden=$('editHidden').checked;
-
-buttons[selectedId]=b;
 persist();
 paintButtons();
 closeModal('editModal');
-toast('تم حفظ تعديل الزر على الهاتف');
+toast('تم حفظ تعديل الزر');
 }
 
-function closeModal(id){
-$(id).classList.remove('show');
+function deleteSelectedButton(){
+if(!selectedId)return;
+if(!selectedId.startsWith('custom_')){
+toast('يمكن إخفاء الزر الأصلي بدل حذفه');
+return;
+}
+delete buttons[selectedId];
+persist();
+paintButtons();
+closeModal('editModal');
+toast('تم حذف الزر الإضافي');
+}
+
+function addCustomButton(){
+const name=$('newName').value.trim();
+const codes=parseCodes($('newCode').value);
+
+if(!name||!codes.length){
+toast('أدخل اسم الزر وكودًا واحدًا على الأقل');
+return;
+}
+
+const id='custom_'+Date.now();
+buttons[id]={
+label:name,
+codes:codes,
+color:$('newColor').value,
+hidden:false
+};
+
+persist();
+paintButtons();
+$('newName').value='';
+$('newCode').value='';
+toast('تمت إضافة الزر إلى الريموت');
 }
 
 document.querySelectorAll('[data-id]').forEach(el=>{
 el.addEventListener('click',()=>{
 const id=el.dataset.id;
-
-if(editing){
-openEditor(id);
-return;
-}
-
+if(editing){openEditor(id);return}
 const b=buttons[id];
-if(!b||b.hidden)return;
-
-sendButton(b);
+if(b&&!b.hidden)sendButton(b);
 });
 });
 
 function sendButton(b){
-const code=(b.code??'').toString().trim();
-
-if(!code){
-toast('كود هذا الزر غير معروف بعد. فعّل وضع التعديل لإدخال الكود الصحيح.');
+if(!b.codes||!b.codes.length){
+toast('هذا الزر ليس له كود مسجل');
 return;
 }
-
-send(code,b.label);
+sendCodes(b.codes,b.label);
 }
 
-function send(code,label){
+function sendCodes(codes,label){
 if(navigator.vibrate)navigator.vibrate(15);
 
 if(!window.Captain){
@@ -668,49 +591,51 @@ return;
 }
 
 const ip=Captain.getSavedIp();
-
 if(!validIp(ip)){
 toast('عنوان IP غير صحيح؛ افتح الإعدادات');
 return;
 }
 
-if(typeof Captain.sendKey==='function'){
-Captain.sendKey(ip,String(code),label||'زر');
-}
+codes.forEach((code,index)=>{
+setTimeout(()=>{
+Captain.sendKey(ip,String(code),label);
+},index*140);
+});
 }
 
 function validIp(ip){
 const p=ip.split('.');
-return p.length===4&&p.every(x=>
-/^\d{1,3}$/.test(x)&&Number(x)>=0&&Number(x)<=255
-);
+return p.length===4&&p.every(x=>/^\d{1,3}$/.test(x)&&Number(x)>=0&&Number(x)<=255);
 }
 
 function openSettings(){
-$('ip').value=window.Captain?
-Captain.getSavedIp():
-'192.168.1.18';
-
+$('ip').value=window.Captain?Captain.getSavedIp():'192.168.1.18';
 $('settingsModal').classList.add('show');
 renderKnown();
 renderBiss();
 }
 
+function closeModal(id){$(id).classList.remove('show')}
+
 function saveSettings(){
 const ip=$('ip').value.trim();
-
-if(!validIp(ip)){
-toast('عنوان IP غير صحيح');
-return;
-}
-
-if(window.Captain){
-Captain.saveIp(ip);
-}
-
+if(!validIp(ip)){toast('عنوان IP غير صحيح');return}
+if(window.Captain)Captain.saveIp(ip);
 localStorage.setItem('scp_ip',ip);
-toast('تم حفظ عنوان IP');
+toast('تم حفظ إعدادات الاتصال');
 closeModal('settingsModal');
+}
+
+function changeButtonSize(value){
+document.documentElement.style.setProperty('--button-scale',value);
+$('sizeValue').textContent=Math.round(Number(value)*100)+'%';
+localStorage.setItem('scp_button_size',value);
+}
+
+function applySavedSize(){
+const value=localStorage.getItem('scp_button_size')||'1';
+$('buttonSize').value=value;
+changeButtonSize(value);
 }
 
 function setTheme(name){
@@ -724,79 +649,48 @@ cyan:['#061c27','#103442','#54e7ff','#24718c']
 };
 
 const t=themes[name];
-['--bg','--panel','--accent','--edge'].forEach((v,i)=>
-document.documentElement.style.setProperty(v,t[i])
-);
-
+['--bg','--panel','--accent','--edge'].forEach((v,i)=>{
+document.documentElement.style.setProperty(v,t[i]);
+});
 localStorage.setItem('scp_theme',name);
 toast('تم تغيير الثيم');
 }
 
 const codeNames={
-0:'رقم 0',
-1:'أعلى',
-2:'أسفل',
-3:'يسار',
-4:'يمين',
-5:'OK',
-6:'MENU',
-7:'EXIT / رجوع',
-8:'F1',
-9:'F2',
-10:'F3',
-11:'F4',
-13:'رقم 1',
-14:'رقم 2',
-15:'رقم 3',
-16:'رقم 4',
-17:'رقم 5',
-18:'رقم 6',
-19:'رقم 7',
-20:'رقم 8',
-21:'رقم 9',
-23:'Mute',
-31:'SUB / DEL حسب خريطة النسخة الحالية',
-32:'EPG',
-33:'FAV',
-35:'VOL +',
-36:'VOL -',
-42:'POWER',
-43:'USB',
-52:'CH + / PAGE +',
-53:'CH -',
-54:'AUDIO',
-57:'INFO'
+1:'أعلى',2:'أسفل',3:'يسار',4:'يمين',5:'OK / قائمة القنوات',
+6:'Menu',7:'Exit',8:'أحمر F1',9:'أخضر / WiFi',
+10:'أصفر / IP',11:'أزرق / التطبيقات',12:'Function List',
+13:'رقم 1',14:'رقم 2',15:'رقم 3',16:'رقم 4',17:'رقم 5',
+18:'رقم 6',19:'رقم 7',20:'رقم 8',21:'رقم 9',
+22:'Radio/TV',23:'Silent',24:'Display',25:'Screen Size',
+26:'مؤقت التسجيل',30:'قائمة الأقمار',31:'الترجمة',32:'EPG',33:'Fav',34:'TXT',35:'رفع الصوت',36:'خفض الصوت',
+37:'All ECM List',38:'BISS Key Edit',39:'Find',
+41:'Sleep',42:'Power',43:'USB',44:'F1',
+45:'إشارة دون وظيفة معروفة',46:'إشارة دون وظيفة معروفة',
+52:'CH+',53:'CH-',54:'لغة الصوت',55:'Stop',56:'Zoom',
+57:'Info',58:'Record',61:'تابع التسجيل',63:'Stop',
+67:'Display',68:'Menu'
 };
 
 function renderKnown(){
-$('knownCodes').innerHTML=
-Object.entries(codeNames).map(([code,name])=>
-'<div class="codeitem"><span>'+name+'</span><b dir="ltr">'+code+'</b></div>'
-).join('')+
-'<div style="margin-top:6px;color:#ffd36a">هذه الأكواد المنقولة من خريطة الأزرار الحالية، وليست تأكيدًا بأن كل زر جديد قد تم اختباره.</div>';
-}
-
-function getBiss(){
-return load('scp_biss',[]);
-}
+$('knownCodes').innerHTML=Object.entries(codeNames).map(([c,n])=>
+'<div class="codeitem"><span>'+n+'</span><b dir="ltr">'+c+'</b></div>'
+).join('');
+  }
+  function getBiss(){return load('scp_biss',[])}
 
 function addBiss(){
 const name=$('bissName').value.trim();
 const key=$('bissKey').value.trim();
 
-if(!name||!key){
-toast('أدخل اسم القناة ومفتاح BISS');
-return;
-}
+if(!name||!key){toast('أدخل اسم القناة والمفتاح');return}
 
 const list=getBiss();
 list.push({name,key});
-
 localStorage.setItem('scp_biss',JSON.stringify(list));
 
 $('bissName').value='';
 $('bissKey').value='';
-
 renderBiss();
 toast('تم حفظ المفتاح محليًا');
 }
@@ -805,15 +699,18 @@ function renderBiss(){
 const list=getBiss();
 
 $('bissList').innerHTML=list.map((x,i)=>
-'<div class="bissitem"><span>'+
-escapeHtml(x.name)+'<br><b dir="ltr">'+
-escapeHtml(x.key)+'</b></span>'+
-'<button class="smallbtn" style="flex:0 0 auto;padding:6px 9px" onclick="deleteBiss('+i+')">حذف</button></div>'
-).join('')||
-'<div style="padding:8px;color:#9db6d8">لا توجد مفاتيح محفوظة</div>';
+'<div class="bissitem"><span>'+escapeHtml(x.name)+'<br><b dir="ltr">'+escapeHtml(x.key)+'</b></span>'+
+'<button class="smallbtn" style="flex:0 0 auto" onclick="deleteBiss('+i+')">حذف</button></div>'
+).join('')||'<div style="padding:8px;color:#9db6d8">لا توجد مفاتيح محفوظة</div>';
 }
 
 function deleteBiss(i){
+const list=getBiss();
+list.splice(i,1);
+localStorage.setItem('scp_biss',JSON.stringify(list));
+renderBiss();
+  }
+  function deleteBiss(i){
 const list=getBiss();
 list.splice(i,1);
 localStorage.setItem('scp_biss',JSON.stringify(list));
@@ -822,21 +719,14 @@ renderBiss();
 
 function escapeHtml(s){
 return String(s).replace(/[&<>"']/g,c=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#39;'
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 }[c]));
 }
+
 function nativeResult(ok,msg){
-if(ok){
-toast('✓ '+msg);
-}else if(msg&&msg.includes('جاري الاتصال')){
-toast(msg);
-}else{
-toast('✕ '+msg);
-}
+if(ok)toast('✓ '+msg);
+else if(msg&&msg.includes('جاري الاتصال'))toast(msg);
+else toast('✕ '+msg);
 }
 
 function applySavedTheme(){
@@ -846,6 +736,7 @@ if(name)setTheme(name);
 
 paintButtons();
 applySavedTheme();
+applySavedSize();
 
 document.addEventListener('keydown',e=>{
 if(e.key==='Escape'){
