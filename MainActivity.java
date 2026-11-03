@@ -421,84 +421,53 @@ public class MainActivity extends Activity {
     // قراءة رد GCDH
     // =====================================================
 
-    private byte[] readResponsePacket(
-            InputStream input
-    ) throws Exception {
+    
+private byte[] readResponsePacket(InputStream input) throws Exception {
 
-        byte[] prefix = readExact(input, 4);
+    // قراءة بداية ترويسة GCDH
+    byte[] prefix = readExact(input, 4);
 
-        String magic = new String(
-                prefix,
-                StandardCharsets.US_ASCII
+    String magic = new String(
+            prefix,
+            StandardCharsets.US_ASCII
+    );
+
+    // لا نقبل ردًا غير مطابق للبروتوكول
+    if (!"GCDH".equals(magic)) {
+        throw new Exception(
+                "ترويسة رد الرسيفر غير صحيحة: " + magic
         );
-
-        if ("GCDH".equals(magic)) {
-
-            // رأس GCDH حجمه 16 بايت
-            byte[] remainingHeader = readExact(
-                    input,
-                    12
-            );
-
-            byte[] header = new byte[16];
-
-            System.arraycopy(
-                    prefix,
-                    0,
-                    header,
-                    0,
-                    4
-            );
-
-            System.arraycopy(
-                    remainingHeader,
-                    0,
-                    header,
-                    4,
-                    12
-            );
-
-            // طول الجسم Little Endian
-            int bodyLength =
-                    (header[4] & 0xff)
-                    | ((header[5] & 0xff) << 8);
-
-            if (bodyLength < 0
-                    || bodyLength > MAX_RESPONSE_SIZE) {
-
-                throw new Exception(
-                        "طول بيانات GCDH غير صالح: "
-                                + bodyLength
-                );
-            }
-
-            if (bodyLength == 0) {
-                return new byte[0];
-            }
-
-            return readExact(
-                    input,
-                    bodyLength
-            );
-        }
-
-        // احتياط للإصدارات التي لا تستخدم GCDH
-        ByteArrayOutputStream out =
-                new ByteArrayOutputStream();
-
-        out.write(prefix);
-
-        int available = input.available();
-
-        if (available > 0) {
-            out.write(
-                    readExact(input, available)
-            );
-        }
-
-        return out.toByteArray();
     }
 
+    // استكمال الترويسة حتى 16 بايت
+    byte[] remainingHeader = readExact(input, 12);
+
+    byte[] header = new byte[16];
+
+    System.arraycopy(prefix, 0, header, 0, 4);
+
+    System.arraycopy(
+            remainingHeader,
+            0,
+            header,
+            4,
+            12
+    );
+
+    // طول البيانات Little Endian
+    int bodyLength =
+            (header[4] & 0xff)
+            | ((header[5] & 0xff) << 8);
+
+    if (bodyLength <= 0 || bodyLength > MAX_RESPONSE_SIZE) {
+        throw new Exception(
+                "طول بيانات GCDH غير صالح: " + bodyLength
+        );
+    }
+
+    // قراءة جسم الرد كاملًا
+    return readExact(input, bodyLength);
+}
     // =====================================================
     // فك ضغط Zlib وتحليل رد الرسيفر
     // =====================================================
