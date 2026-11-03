@@ -6,263 +6,1113 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#07132e">
 <title>Senator Captain Pro</title>
+
 <style>
-:root{--bg:#06112a;--panel:#102044;--accent:#12cfff}
-*{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at top,#173d80,#07152e 58%,#030918);color:#f5f8ff;font-family:system-ui,sans-serif}
-button{font:inherit;color:inherit;border:1px solid #5478a9;cursor:pointer;touch-action:manipulation}
-.app{height:100dvh;max-width:620px;margin:auto;padding:6px 8px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
-header{height:51px;min-height:48px;display:flex;align-items:center;gap:8px;padding:5px 8px;border:1px solid #398bdf;border-radius:16px;background:linear-gradient(110deg,#081630,#183767,#08152e);box-shadow:0 0 15px #008cff55}
-.logo{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#05dfff,#1648ce,#7a2bd1);font-size:25px;box-shadow:0 0 12px #00cfff}
-.brand{flex:1;line-height:1.05;white-space:nowrap}
-.brand b{font-size:clamp(14px,4vw,19px)}
-.brand em{color:#26d9ff;font-style:normal}
-.brand small{display:block;color:#b7c9e8;font-size:9px;letter-spacing:1px}
-.status{font-size:10px;color:#21e5a1;border:1px solid #147b69;border-radius:20px;padding:7px}
-.gear{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#6154a7,#18264d);font-size:21px}
-.device{height:100px;min-height:90px;display:grid;grid-template-columns:35% 1fr;gap:8px;padding:7px;border:1px solid #3675c2;border-radius:17px;background:linear-gradient(130deg,#0c1b39,#14274c,#201747);box-shadow:0 0 13px #006dff44}
-.tv{border:3px solid #6c8dbb;border-radius:6px;background:linear-gradient(150deg,#104e94,#21a4d1 40%,#ffad65 55%,#123b70 56%,#061b3c);box-shadow:0 0 12px #00cfff;position:relative;overflow:hidden}
-.tv:after{content:"";position:absolute;inset:30% 0 20%;background:linear-gradient(135deg,transparent 25%,#b9eaff 26%,#355c8c 38%,transparent 39%);clip-path:polygon(0 90%,25% 10%,48% 75%,70% 0,100% 85%,100% 100%,0 100%)}
-.deviceinfo{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
-.model{font-size:clamp(11px,3.3vw,15px);font-weight:850;white-space:nowrap}
-.sub{font-size:10px;color:#aec7e9}
-.ready{font-size:10px;color:#19e6a0;font-weight:bold}
-.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-.facts span{background:#07152e;border:1px solid #254b80;border-radius:8px;padding:5px 2px;text-align:center;font-size:8px;color:#cde2ff}
-.facts b{display:block;color:#21d3ff;font-size:9px}
-.cats{height:51px;min-height:47px;display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.cat{border-radius:12px;background:linear-gradient(145deg,#0868c7,#092b65);font-size:10px;font-weight:bold;box-shadow:0 3px 0 #030a18,0 0 8px #008cff55;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
-.cat i{font-style:normal;font-size:17px}
-.cat:nth-child(2){background:linear-gradient(145deg,#7423b6,#29105f);border-color:#bd77ff}
-.cat:nth-child(3){background:linear-gradient(145deg,#087d50,#063c2d);border-color:#38e4a0}
-.cat:nth-child(4){background:linear-gradient(145deg,#a84d08,#542300);border-color:#ffc064}
-.cat:nth-child(5){background:linear-gradient(145deg,#07599f,#071d4a);border-color:#28cfff}
-.cat.active{outline:2px solid #18dfff;box-shadow:0 0 13px #00cfff}
-.remote{flex:1;min-height:0;padding:7px;border:1px solid #317bd1;border-radius:21px;background:linear-gradient(145deg,#172c50,#07152e 65%,#111b3a);box-shadow:0 0 17px #006dff44;display:grid;grid-template-columns:minmax(65px,.78fr) minmax(110px,1.35fr) minmax(65px,.78fr);gap:6px}
-.side{display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-height:0}
-.key{flex:1;min-height:23px;padding:2px;border-radius:10px;background:linear-gradient(155deg,#30496d,#0b1932);box-shadow:0 3px 0 #020916,inset 0 1px #d5eaff55;font-size:clamp(9px,2.7vw,13px);font-weight:800;text-align:center;display:flex;align-items:center;justify-content:center}
-.key:active,.cat:active{transform:translateY(2px);filter:brightness(1.3)}
-.power{background:linear-gradient(145deg,#ff536a,#b50029);border-color:#ff9aaa;font-size:18px}
-.red{background:linear-gradient(145deg,#ff536a,#a90028)}
-.green{background:linear-gradient(145deg,#15db9a,#006b4b)}
-.yellow{background:linear-gradient(145deg,#ffd34a,#a96100);color:#201300}
-.blue{background:linear-gradient(145deg,#1c9fff,#0642ad)}
-.center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0}
-.ring{width:min(100%,min(42vw,225px));aspect-ratio:1;padding:7px;border-radius:50%;background:conic-gradient(#00dfff,#3549c9,#00bfff,#173c8d,#00dfff);box-shadow:0 0 16px #00aaffaa;display:grid;place-items:center}
-.pad{width:100%;height:100%;border-radius:50%;padding:7px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:4px;background:radial-gradient(circle,#263e62,#091831);border:2px solid #6b91c8}
-.arrow{border-radius:50%;background:linear-gradient(145deg,#3a537d,#101e38);font-size:clamp(16px,5vw,24px);font-weight:900;color:#e5faff;text-shadow:0 0 8px #00bfff}
+:root{
+--bg:#06112a;
+--panel:#102044;
+--accent:#12cfff;
+--line:#2866b5;
+}
+
+*{
+box-sizing:border-box;
+user-select:none;
+-webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+background:radial-gradient(ellipse at top,#173d80,#07152e 58%,#030918);
+color:#f5f8ff;
+font-family:system-ui,sans-serif;
+}
+
+button{
+font:inherit;
+color:inherit;
+border:1px solid #5478a9;
+cursor:pointer;
+touch-action:manipulation;
+}
+
+.app{
+height:100dvh;
+max-width:620px;
+margin:auto;
+padding:6px 8px;
+display:flex;
+flex-direction:column;
+gap:6px;
+overflow:hidden;
+}
+
+header{
+height:51px;
+min-height:48px;
+display:flex;
+align-items:center;
+gap:8px;
+padding:5px 8px;
+border:1px solid #398bdf;
+border-radius:16px;
+background:linear-gradient(110deg,#081630,#183767,#08152e);
+box-shadow:0 0 15px #008cff55;
+}
+
+.logo{
+width:39px;
+height:39px;
+border-radius:12px;
+display:grid;
+place-items:center;
+background:linear-gradient(145deg,#05dfff,#1648ce,#7a2bd1);
+font-size:25px;
+box-shadow:0 0 12px #00cfff;
+}
+
+.brand{
+flex:1;
+line-height:1.05;
+white-space:nowrap;
+}
+
+.brand b{
+font-size:clamp(14px,4vw,19px);
+}
+
+.brand em{
+color:#26d9ff;
+font-style:normal;
+}
+
+.brand small{
+display:block;
+color:#b7c9e8;
+font-size:9px;
+letter-spacing:1px;
+}
+
+.status{
+font-size:10px;
+border:1px solid;
+border-radius:20px;
+padding:7px;
+white-space:nowrap;
+}
+
+.status.disconnected{
+color:#ff7889;
+border-color:#a83c50;
+}
+
+.status.connecting{
+color:#ffd36a;
+border-color:#a87920;
+}
+
+.status.connected{
+color:#21e5a1;
+border-color:#147b69;
+}
+
+.gear{
+width:38px;
+height:38px;
+border-radius:11px;
+background:linear-gradient(145deg,#6154a7,#18264d);
+font-size:21px;
+}
+
+.device{
+height:100px;
+min-height:90px;
+display:grid;
+grid-template-columns:35% 1fr;
+gap:8px;
+padding:7px;
+border:1px solid #3675c2;
+border-radius:17px;
+background:linear-gradient(130deg,#0c1b39,#14274c,#201747);
+box-shadow:0 0 13px #006dff44;
+}
+
+.tv{
+border:3px solid #6c8dbb;
+border-radius:6px;
+background:linear-gradient(150deg,#104e94,#21a4d1 40%,#ffad65 55%,#123b70 56%,#061b3c);
+box-shadow:0 0 12px #00cfff;
+position:relative;
+overflow:hidden;
+}
+
+.tv:after{
+content:"";
+position:absolute;
+inset:30% 0 20%;
+background:linear-gradient(135deg,transparent 25%,#b9eaff 26%,#355c8c 38%,transparent 39%);
+clip-path:polygon(0 90%,25% 10%,48% 75%,70% 0,100% 85%,100% 100%,0 100%);
+}
+
+.deviceinfo{
+display:flex;
+flex-direction:column;
+justify-content:center;
+gap:3px;
+min-width:0;
+}
+
+.model{
+font-size:clamp(11px,3.3vw,15px);
+font-weight:850;
+white-space:nowrap;
+}
+
+.sub{
+font-size:10px;
+color:#aec7e9;
+}
+
+.ready{
+font-size:10px;
+color:#ffd36a;
+font-weight:bold;
+}
+
+.facts{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:4px;
+}
+
+.facts span{
+background:#07152e;
+border:1px solid #254b80;
+border-radius:8px;
+padding:5px 2px;
+text-align:center;
+font-size:8px;
+color:#cde2ff;
+}
+
+.facts b{
+display:block;
+color:#21d3ff;
+font-size:9px;
+}
+
+.cats{
+height:51px;
+min-height:47px;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:5px;
+}
+
+.cat{
+border-radius:12px;
+background:linear-gradient(145deg,#0868c7,#092b65);
+font-size:10px;
+font-weight:bold;
+box-shadow:0 3px 0 #030a18,0 0 8px #008cff55;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:0;
+}
+
+.cat i{
+font-style:normal;
+font-size:17px;
+}
+
+.cat:nth-child(2){
+background:linear-gradient(145deg,#7423b6,#29105f);
+border-color:#bd77ff;
+}
+
+.cat:nth-child(3){
+background:linear-gradient(145deg,#087d50,#063c2d);
+border-color:#38e4a0;
+}
+
+.cat:nth-child(4){
+background:linear-gradient(145deg,#a84d08,#542300);
+border-color:#ffc064;
+}
+
+.cat:nth-child(5){
+background:linear-gradient(145deg,#07599f,#071d4a);
+border-color:#28cfff;
+}
+
+.cat.active{
+outline:2px solid #18dfff;
+box-shadow:0 0 13px #00cfff;
+}
+
+.remote{
+flex:1;
+min-height:0;
+padding:7px;
+border:1px solid #317bd1;
+border-radius:21px;
+background:linear-gradient(145deg,#172c50,#07152e 65%,#111b3a);
+box-shadow:0 0 17px #006dff44;
+display:grid;
+grid-template-columns:minmax(65px,.78fr) minmax(110px,1.35fr) minmax(65px,.78fr);
+gap:6px;
+}
+
+.side{
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+gap:4px;
+min-height:0;
+}
+
+.key{
+flex:1;
+min-height:23px;
+padding:2px;
+border-radius:10px;
+background:linear-gradient(155deg,#30496d,#0b1932);
+box-shadow:0 3px 0 #020916,inset 0 1px #d5eaff55;
+font-size:clamp(9px,2.7vw,13px);
+font-weight:800;
+text-align:center;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.key:active,.cat:active{
+transform:translateY(2px);
+filter:brightness(1.3);
+}
+
+.power{
+background:linear-gradient(145deg,#ff536a,#b50029);
+border-color:#ff9aaa;
+font-size:18px;
+}
+
+.red{
+background:linear-gradient(145deg,#ff536a,#a90028);
+}
+
+.green{
+background:linear-gradient(145deg,#15db9a,#006b4b);
+}
+
+.yellow{
+background:linear-gradient(145deg,#ffd34a,#a96100);
+color:#201300;
+}
+
+.blue{
+background:linear-gradient(145deg,#1c9fff,#0642ad);
+}
+
+.center{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:7px;
+min-width:0;
+}
+
+.ring{
+width:min(100%,min(42vw,225px));
+aspect-ratio:1;
+padding:7px;
+border-radius:50%;
+background:conic-gradient(#00dfff,#3549c9,#00bfff,#173c8d,#00dfff);
+box-shadow:0 0 16px #00aaffaa;
+display:grid;
+place-items:center;
+}
+
+.pad{
+width:100%;
+height:100%;
+border-radius:50%;
+padding:7px;
+display:grid;
+grid-template:repeat(3,1fr)/repeat(3,1fr);
+gap:4px;
+background:radial-gradient(circle,#263e62,#091831);
+border:2px solid #6b91c8;
+}
+
+.arrow{
+border-radius:50%;
+background:linear-gradient(145deg,#3a537d,#101e38);
+font-size:clamp(16px,5vw,24px);
+font-weight:900;
+color:#e5faff;
+text-shadow:0 0 8px #00bfff;
+}
+
 .up{grid-area:1/2}
 .left{grid-area:2/1}
 .right{grid-area:2/3}
 .down{grid-area:3/2}
-.ok{grid-area:2/2;border-radius:50%;background:radial-gradient(circle,#0b88ff,#061b55);border:2px solid #43e3ff;box-shadow:0 0 12px #00bfff;font-size:clamp(16px,5vw,23px);font-weight:900}
-.numbers{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-.num{font-size:14px;min-height:24px}
-footer{height:53px;min-height:49px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:4px;border:1px solid #2c65ad;border-radius:16px;background:linear-gradient(100deg,#0b1b3b,#17294f,#08162f)}
-.nav{border:0;background:transparent;border-radius:10px;color:#c0d3ed;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.nav b{font-size:18px}
-.nav.active{background:linear-gradient(145deg,#087cff,#062b79);border:1px solid #49d8ff;color:white;box-shadow:0 0 11px #00aaff}
-.modal{position:fixed;inset:0;background:#020817dd;z-index:9;display:none;align-items:center;justify-content:center;padding:18px}
-.modal.show{display:flex}
-.dialog{width:min(100%,390px);padding:16px;border:1px solid #398bff;border-radius:20px;background:linear-gradient(145deg,#192f57,#07152e);box-shadow:0 0 25px #007bff88}
-.dialog h2{margin:0 0 12px;font-size:18px}
-.dialog label{display:block;color:#c5daf8;font-size:12px;margin:10px 0 5px}
-.dialog input{width:100%;padding:11px;background:#07132a;border:1px solid #456b9d;border-radius:10px;color:white;text-align:center;direction:ltr;font-size:15px}
-.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.theme{padding:10px 2px;border-radius:9px;background:#172e52;font-size:11px}
-.actions{display:flex;gap:8px;margin-top:13px}
-.actions button{flex:1;padding:11px;border-radius:10px;background:#126bd2;font-weight:bold}
-.actions .close{background:#394a65}
-#toast{min-height:13px;text-align:center;color:#b9d1f1;font-size:10px;margin-top:9px}
-@media(max-height:680px){.app{gap:4px;padding:4px}.device{height:86px;min-height:80px}.cats{height:45px;min-height:43px}.remote{padding:5px;gap:4px}.key{border-radius:8px}.ring{width:min(100%,min(38vw,185px))}footer{height:46px;min-height:44px}}
-@media(max-width:350px){.remote{grid-template-columns:minmax(57px,.75fr) minmax(105px,1.3fr) minmax(57px,.75fr);gap:4px}.facts span{font-size:7px}.brand b{font-size:13px}}
+
+.ok{
+grid-area:2/2;
+border-radius:50%;
+background:radial-gradient(circle,#0b88ff,#061b55);
+border:2px solid #43e3ff;
+box-shadow:0 0 12px #00bfff;
+font-size:clamp(16px,5vw,23px);
+font-weight:900;
+}
+
+.numbers{
+width:100%;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:4px;
+}
+
+.num{
+font-size:14px;
+min-height:24px;
+}
+
+footer{
+height:53px;
+min-height:49px;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:4px;
+padding:4px;
+border:1px solid #2c65ad;
+border-radius:16px;
+background:linear-gradient(100deg,#0b1b3b,#17294f,#08162f);
+}
+
+.nav{
+border:0;
+background:transparent;
+border-radius:10px;
+color:#c0d3ed;
+font-size:9px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+}
+
+.nav b{
+font-size:18px;
+}
+
+.nav.active{
+background:linear-gradient(145deg,#087cff,#062b79);
+border:1px solid #49d8ff;
+color:white;
+box-shadow:0 0 11px #00aaff;
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:#020817dd;
+z-index:9;
+display:none;
+align-items:center;
+justify-content:center;
+padding:18px;
+}
+
+.modal.show{
+display:flex;
+}
+
+.dialog{
+width:min(100%,390px);
+padding:16px;
+border:1px solid #398bff;
+border-radius:20px;
+background:linear-gradient(145deg,#192f57,#07152e);
+box-shadow:0 0 25px #007bff88;
+}
+
+.dialog h2{
+margin:0 0 12px;
+font-size:18px;
+}
+
+.dialog label{
+display:block;
+color:#c5daf8;
+font-size:12px;
+margin:10px 0 5px;
+}
+
+.dialog input{
+width:100%;
+padding:11px;
+background:#07132a;
+border:1px solid #456b9d;
+border-radius:10px;
+color:white;
+text-align:center;
+direction:ltr;
+font-size:15px;
+}
+
+.themes{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:6px;
+}
+
+.theme{
+padding:10px 2px;
+border-radius:9px;
+background:#172e52;
+font-size:11px;
+}
+
+.actions{
+display:flex;
+gap:8px;
+margin-top:13px;
+}
+
+.actions button{
+flex:1;
+padding:11px;
+border-radius:10px;
+background:#126bd2;
+font-weight:bold;
+}
+
+.actions .close{
+background:#394a65;
+}
+
+#settingsToast{
+min-height:13px;
+text-align:center;
+color:#b9d1f1;
+font-size:10px;
+margin-top:9px;
+}
+
+#toast{
+position:fixed;
+z-index:20;
+bottom:68px;
+left:12px;
+right:12px;
+width:fit-content;
+max-width:calc(100% - 24px);
+margin:auto;
+padding:12px 17px;
+border:1px solid #398bdf;
+border-radius:13px;
+background:#102044;
+color:#fff;
+font-size:12px;
+text-align:center;
+box-shadow:0 5px 22px #0009;
+opacity:0;
+visibility:hidden;
+transform:translateY(10px);
+transition:.2s;
+white-space:pre-line;
+pointer-events:none;
+}
+
+#toast.show{
+opacity:1;
+visibility:visible;
+transform:translateY(0);
+}
+
+@media(max-height:680px){
+.app{
+gap:4px;
+padding:4px;
+}
+.device{
+height:86px;
+min-height:80px;
+}
+.cats{
+height:45px;
+min-height:43px;
+}
+.remote{
+padding:5px;
+gap:4px;
+}
+.key{
+border-radius:8px;
+}
+.ring{
+width:min(100%,min(38vw,185px));
+}
+footer{
+height:46px;
+min-height:44px;
+}
+#toast{
+bottom:55px;
+}
+}
+
+@media(max-width:350px){
+.remote{
+grid-template-columns:minmax(57px,.75fr) minmax(105px,1.3fr) minmax(57px,.75fr);
+gap:4px;
+}
+.facts span{
+font-size:7px;
+}
+.brand b{
+font-size:13px;
+}
+}
 </style>
 </head>
+
 <body>
+
 <div class="app">
+
 <header>
 <div class="logo">👑</div>
-<div class="brand"><b>Senator <em>Captain Pro</em></b><small>UNIVERSAL REMOTE</small></div>
-<div class="status">● متصل</div>
+
+<div class="brand">
+<b>Senator <em>Captain Pro</em></b>
+<small>UNIVERSAL REMOTE</small>
+</div>
+
+<div class="status disconnected" id="connectionStatus">
+● غير متصل
+</div>
+
 <button class="gear" onclick="openSettings()">⚙</button>
 </header>
 
 <section class="device">
+
 <div class="tv"></div>
+
 <div class="deviceinfo">
+
 <div class="model">Senator Captain Q2 4K CA</div>
+
 <div class="sub">ALi 2661</div>
-<div class="ready">● جاهز للتحكم</div>
-<div class="facts">
-<span><b>Wi‑Fi</b>اتصال محلي</span>
-<span><b>20000</b>منفذ التحكم</span>
-<span><b>G‑MScreen</b>البروتوكول</span>
+
+<div class="ready" id="deviceStatus">
+● بانتظار الاتصال
 </div>
+
+<div class="facts">
+<span><b>Wi-Fi</b>اتصال محلي</span>
+<span><b>20000</b>منفذ التحكم</span>
+<span><b>G-MScreen</b>البروتوكول</span>
+</div>
+
 </div>
 </section>
 
 <section class="cats">
-<button class="cat active" onclick="cat(this)"><i>▣</i>التلفزيون</button>
-<button class="cat" onclick="cat(this)"><i>◉</i>القنوات</button>
-<button class="cat" onclick="cat(this)"><i>▣</i>الأفلام</button>
-<button class="cat" onclick="cat(this)"><i>♫</i>الموسيقى</button>
-<button class="cat" onclick="cat(this)"><i>▦</i>التطبيقات</button>
+
+<button class="cat active" onclick="cat(this)">
+<i>▣</i>التلفزيون
+</button>
+
+<button class="cat" onclick="cat(this)">
+<i>◉</i>القنوات
+</button>
+
+<button class="cat" onclick="cat(this)">
+<i>▣</i>الأفلام
+</button>
+
+<button class="cat" onclick="cat(this)">
+<i>♫</i>الموسيقى
+</button>
+
+<button class="cat" onclick="cat(this)">
+<i>▦</i>التطبيقات
+</button>
+
 </section>
 
 <main class="remote">
+
 <div class="side">
+
 <button class="key power" onclick="k(42,'POWER')">⏻</button>
+
 <button class="key" onclick="k(6,'الرئيسية')">⌂ الرئيسية</button>
+
 <button class="key" onclick="k(6,'القائمة')">☰ القائمة</button>
+
 <button class="key" onclick="k(7,'رجوع')">↶ رجوع</button>
+
 <button class="key" onclick="k(57,'معلومات')">ⓘ معلومات</button>
+
 <button class="key" onclick="k(33,'المفضلة')">★ المفضلة</button>
+
 <button class="key red" onclick="k(8,'F1')">F1</button>
+
 <button class="key green" onclick="k(9,'F2')">F2</button>
+
 <button class="key yellow" onclick="k(10,'F3')">F3</button>
+
 <button class="key blue" onclick="k(11,'F4')">F4</button>
+
 </div>
 
 <div class="center">
+
 <div class="ring">
+
 <div class="pad">
+
 <button class="arrow up" onclick="k(1,'أعلى')">⌃</button>
+
 <button class="arrow left" onclick="k(3,'يسار')">❮</button>
+
 <button class="ok" onclick="k(5,'OK')">OK</button>
+
 <button class="arrow right" onclick="k(4,'يمين')">❯</button>
+
 <button class="arrow down" onclick="k(2,'أسفل')">⌄</button>
+
 </div>
 </div>
+
 <div class="numbers">
+
 <button class="key num" onclick="k(13,'1')">1</button>
 <button class="key num" onclick="k(14,'2')">2</button>
 <button class="key num" onclick="k(15,'3')">3</button>
+
 <button class="key num" onclick="k(16,'4')">4</button>
 <button class="key num" onclick="k(17,'5')">5</button>
 <button class="key num" onclick="k(18,'6')">6</button>
+
 <button class="key num" onclick="k(19,'7')">7</button>
 <button class="key num" onclick="k(20,'8')">8</button>
 <button class="key num" onclick="k(21,'9')">9</button>
+
 <button class="key num" onclick="k(57,'INFO')">INFO</button>
 <button class="key num" onclick="k(0,'0')">0</button>
 <button class="key num" onclick="k(31,'DEL')">DEL</button>
+
 </div>
 </div>
 
 <div class="side">
+
 <button class="key" onclick="k(23,'كتم')">◖̸ كتم</button>
+
 <button class="key" onclick="k(35,'VOL +')">VOL ＋</button>
+
 <button class="key" onclick="k(36,'VOL -')">VOL −</button>
+
 <button class="key" onclick="k(52,'CH +')">CH ＋</button>
+
 <button class="key" onclick="k(53,'CH -')">CH −</button>
+
 <button class="key red" onclick="k(43,'USB')">▶ USB</button>
+
 <button class="key" onclick="k(32,'EPG')">EPG</button>
+
 <button class="key" onclick="k(54,'AUDIO')">AUDIO</button>
+
 <button class="key blue" onclick="k(31,'SUB')">SUB</button>
+
 <button class="key" onclick="k(41,'SLEEP')">SLEEP</button>
+
 </div>
+
 </main>
 
 <footer>
-<button class="nav active" onclick="nav(this)"><b>▣</b>الريموت</button>
-<button class="nav" onclick="nav(this)"><b>▦</b>القنوات</button>
-<button class="nav" onclick="nav(this)"><b>★</b>المفضلة</button>
-<button class="nav" onclick="nav(this)"><b>▱</b>الشاشة</button>
-<button class="nav" onclick="openSettings()"><b>⚙</b>الإعدادات</button>
+
+<button class="nav active" onclick="nav(this)">
+<b>▣</b>الريموت
+</button>
+
+<button class="nav" onclick="nav(this)">
+<b>▦</b>القنوات
+</button>
+
+<button class="nav" onclick="nav(this)">
+<b>★</b>المفضلة
+</button>
+
+<button class="nav" onclick="nav(this)">
+<b>▱</b>الشاشة
+</button>
+
+<button class="nav" onclick="openSettings()">
+<b>⚙</b>الإعدادات
+</button>
+
 </footer>
+
 </div>
 
-<div class="modal" id="settings" onclick="if(event.target===this)closeSettings()">
+<!-- نافذة الإعدادات -->
+
+<div class="modal" id="settings"
+onclick="if(event.target===this)closeSettings()">
+
 <div class="dialog">
+
 <h2>⚙ إعدادات التطبيق</h2>
+
 <label for="ip">عنوان IP للرسيفر</label>
-<input id="ip" value="192.168.1.18" inputmode="decimal">
+
+<input id="ip"
+value="192.168.1.18"
+inputmode="decimal">
+
 <label>سمات الواجهة</label>
+
 <div class="themes">
+
 <button class="theme" onclick="theme('blue')">أزرق ملكي</button>
+
 <button class="theme" onclick="theme('purple')">بنفسجي</button>
+
 <button class="theme" onclick="theme('red')">أحمر</button>
+
 <button class="theme" onclick="theme('green')">زمردي</button>
+
 <button class="theme" onclick="theme('gold')">ذهبي</button>
+
 <button class="theme" onclick="theme('cyan')">سماوي</button>
+
 </div>
-<div id="toast">إعدادات الاتصال محفوظة على الهاتف</div>
+
+<div id="settingsToast">
+إعدادات الاتصال محفوظة على الهاتف
+</div>
+
 <div class="actions">
+
 <button onclick="save()">حفظ</button>
+
 <button class="close" onclick="closeSettings()">إغلاق</button>
+
+</div>
+
 </div>
 </div>
-</div>
+
+<!-- رسائل الحالة الرئيسية -->
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-const $=id=>document.getElementById(id);
+
+const $ = id => document.getElementById(id);
+
+let toastTimer = null;
+
+/* فتح الإعدادات */
 
 function openSettings(){
+
 $('settings').classList.add('show');
-$('ip').value=window.Captain?Captain.getSavedIp():'192.168.1.18';
+
+$('ip').value =
+window.Captain
+? Captain.getSavedIp()
+: '192.168.1.18';
+
 }
+
+/* إغلاق الإعدادات */
 
 function closeSettings(){
+
 $('settings').classList.remove('show');
+
 }
+
+/* عرض الرسائل */
+
+function showMessage(message){
+
+const box = $('toast');
+
+box.textContent = message;
+
+box.classList.add('show');
+
+if(toastTimer){
+clearTimeout(toastTimer);
+}
+
+toastTimer = setTimeout(()=>{
+
+box.classList.remove('show');
+
+},4000);
+
+}
+
+/* تغيير حالة الاتصال */
+
+function setConnection(state,message){
+
+const status = $('connectionStatus');
+
+const device = $('deviceStatus');
+
+status.className = 'status ' + state;
+
+if(state === 'connected'){
+
+status.textContent = '● متصل';
+
+device.textContent = '● الاتصال بالرسيفر ناجح';
+
+}
+else if(state === 'connecting'){
+
+status.textContent = '● جاري الاتصال';
+
+device.textContent = '● جاري إنشاء جلسة G-MScreen';
+
+}
+else{
+
+status.textContent = '● غير متصل';
+
+device.textContent = '● بانتظار الاتصال';
+
+}
+
+if(message){
+
+showMessage(message);
+
+}
+
+}
+
+/* التحقق من IP */
+
+function validIp(ip){
+
+const p = ip.split('.');
+
+return p.length === 4 &&
+p.every(x =>
+/^\d{1,3}$/.test(x) &&
+Number(x) >= 0 &&
+Number(x) <= 255
+);
+
+}
+
+/* حفظ الإعدادات */
 
 function save(){
-let ip=$('ip').value.trim();
-let p=ip.split('.');
-if(p.length!==4||p.some(x=>!/^\d{1,3}$/.test(x)||+x>255)){
-$('toast').textContent='عنوان IP غير صحيح';
+
+let ip = $('ip').value.trim();
+
+if(!validIp(ip)){
+
+$('settingsToast').textContent =
+'عنوان IP غير صحيح';
+
 return;
+
 }
-if(window.Captain)Captain.saveIp(ip);
-$('toast').textContent='تم حفظ عنوان IP';
+
+if(window.Captain){
+
+Captain.saveIp(ip);
+
+}
+
+$('settingsToast').textContent =
+'تم حفظ عنوان IP';
+
+setConnection(
+'disconnected',
+'تم حفظ عنوان الرسيفر. اضغط أي زر للاتصال.'
+);
+
 setTimeout(closeSettings,450);
+
 }
+
+/* تغيير السمة */
 
 function theme(n){
-let t={
+
+let t = {
+
 blue:['#06112a','#102044','#2866b5','#12cfff'],
+
 purple:['#160b2a','#24133f','#6335a0','#d18aff'],
+
 red:['#210b19','#351326','#8d3156','#ff719c'],
+
 green:['#061e1b','#10352d','#237a61','#4dffc0'],
+
 gold:['#211707','#35260f','#896127','#ffd16b'],
+
 cyan:['#061c27','#103442','#24718c','#54e7ff']
+
 }[n];
-let s=document.documentElement.style;
+
+let s = document.documentElement.style;
+
 s.setProperty('--bg',t[0]);
+
 s.setProperty('--panel',t[1]);
+
 s.setProperty('--line',t[2]);
+
 s.setProperty('--accent',t[3]);
-$('toast').textContent='تم تغيير السمة';
+
+showMessage('تم تغيير السمة');
+
 }
+
+/* اختيار التصنيف */
 
 function cat(el){
-document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));
+
+document.querySelectorAll('.cat').forEach(x=>{
+
+x.classList.remove('active');
+
+});
+
 el.classList.add('active');
+
 }
+
+/* شريط التنقل */
 
 function nav(el){
-document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));
+
+document.querySelectorAll('.nav').forEach(x=>{
+
+x.classList.remove('active');
+
+});
+
 el.classList.add('active');
+
 }
+
+/* استقبال نتيجة Java */
 
 function nativeResult(ok,msg){
-$('toast').textContent=(ok?'✓ ':'! ')+msg;
+
+if(ok){
+
+setConnection(
+'connected',
+'✓ ' + msg
+);
+
 }
+else if(msg && msg.includes('جاري الاتصال')){
+
+setConnection(
+'connecting',
+msg
+);
+
+}
+else{
+
+setConnection(
+'disconnected',
+'✕ ' + msg
+);
+
+}
+
+}
+
+/* إرسال أمر الريموت */
 
 function k(code,name){
-if(navigator.vibrate)navigator.vibrate(18);
-if(!window.Captain){
-$('toast').textContent='جسر الاتصال غير متاح';
-return;
-}
-let ip=Captain.getSavedIp();
-$('toast').textContent='إرسال '+name+'…';
-Captain.sendKey(ip,String(code),name);
+
+if(navigator.vibrate){
+
+navigator.vibrate(18);
+
 }
 
+if(!window.Captain){
+
+setConnection(
+'disconnected',
+'جسر الاتصال غير متاح'
+);
+
+return;
+
+}
+
+let ip = Captain.getSavedIp();
+
+if(!validIp(ip)){
+
+setConnection(
+'disconnected',
+'عنوان IP غير صحيح'
+);
+
+return;
+
+}
+
+setConnection(
+'connecting',
+'جاري إرسال أمر ' + name
+);
+
+Captain.sendKey(
+ip,
+String(code),
+name
+);
+
+}
+
+/* زر الرجوع */
+
 document.addEventListener('keydown',e=>{
-if(e.key==='Escape')closeSettings();
+
+if(e.key === 'Escape'){
+
+closeSettings();
+
+}
+
 });
+
 </script>
+
 </body>
 </html>
