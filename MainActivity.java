@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
+import android.net.DhcpInfo;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -24,8 +27,13 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
 
 public class MainActivity extends Activity {
@@ -33,32 +41,26 @@ public class MainActivity extends Activity {
     private WebView webView;
     private SharedPreferences prefs;
 
-    // تنفيذ جميع أوامر الرسيفر بالترتيب
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
 
     private final Handler main =
             new Handler(Looper.getMainLooper());
 
-    // إعدادات بروتوكول G-MScreen
     private static final int GMSCREEN_PORT = 20000;
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int READ_TIMEOUT = 5000;
     private static final int GREETING_SIZE = 108;
     private static final int MAX_RESPONSE_SIZE = 1048576;
 
-    // إعادة إنشاء الجلسة بعد 45 ثانية من الخمول
     private static final long IDLE_RECONNECT_MS = 45000;
 
-    // الاتصال المستمر بالرسيفر
     private Socket receiverSocket;
     private InputStream receiverInput;
     private OutputStream receiverOutput;
 
     private String connectedIp = null;
     private boolean sessionReady = false;
-
-    // وقت آخر أمر ناجح أُرسل للرسيفر
     private long lastKeySentAt = 0;
 
     private String currentStage = "جاهز";
@@ -101,19 +103,13 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getSavedIp() {
-            return prefs.getString(
-                    "ip",
-                    "192.168.1.18"
-            );
+            return prefs.getString("ip", "");
         }
 
         @JavascriptInterface
         public void saveIp(String ip) {
-
             if (validIp(ip)) {
-                prefs.edit()
-                        .putString("ip", ip)
-                        .apply();
+                prefs.edit().putString("ip", ip).apply();
             }
         }
 
@@ -123,11 +119,6 @@ public class MainActivity extends Activity {
                 String key,
                 String label
         ) {
-
-            if (!validIp(ip)) {
-                report(false, "عنوان IP غير صحيح");
-                return;
-            }
 
             if (key == null || !key.matches("[0-9]{1,4}")) {
                 report(false, "كود الزر غير صحيح");
@@ -140,7 +131,7 @@ public class MainActivity extends Activity {
 
                     report(
                             false,
-                            "جاري تجهيز الاتصال وإرسال الأمر..."
+                            "جاري البحث عن الرسيفر والاتصال به..."
                     );
 
                     sendKeyWithRecovery(ip, key);
@@ -148,6 +139,7 @@ public class MainActivity extends Activity {
                     report(
                             true,
                             "تم إرسال الأمر: " + label
+                                    + "\nعنوان الرسيفر: " + connectedIp
                                     + "\nاتصال G-MScreen نشط"
                     );
 
@@ -156,19 +148,14 @@ public class MainActivity extends Activity {
                     String detail = e.getMessage();
 
                     String message =
-                            "فشل تنفيذ الأمر"
+                            "تعذر الاتصال بالرسيفر"
                                     + "\nالمرحلة: " + currentStage
-                                    + "\nالخطأ: "
-                                    + e.getClass().getSimpleName()
                                     + "\nالتفاصيل: "
-                                    + (
-                                        detail == null
-                                        ? "غير متوفرة"
-                                        : detail
-                                    );
+                                    + (detail == null
+                                    ? "غير متوفرة"
+                                    : detail);
 
                     closeSession();
-
                     report(false, message);
                 }
             });
@@ -176,11 +163,11 @@ public class MainActivity extends Activity {
     }
 
     // =====================================================
-    // إرسال الأمر مع معالجة الاتصال القديم
+    // الاتصال أو البحث التلقائي
     // =====================================================
 
     private void sendKeyWithRecovery(
-            String ip,
+            String preferredIp,
             String key
     ) throws Exception {
 
@@ -189,20 +176,13 @@ public class MainActivity extends Activity {
                 || SystemClock.elapsedRealtime() - lastKeySentAt
                         >= IDLE_RECONNECT_MS;
 
-        boolean needNewConnection =
-                !isSessionReady(ip) || idleExpired;
-
-        // إذا انتهت مدة الخمول، لا نستخدم الجلسة القديمة
-        if (needNewConnection) {
+        if (!isSessionReady(connectedIp) || idleExpired) {
 
             closeSession();
 
-            currentStage = "إعادة إنشاء جلسة G-MScreen";
-
-            connectSession(ip);
+            connectOrDiscover(preferredIp);
         }
 
-        // محاولة إرسال الأمر
         try {
 
             sendRemoteKey(key);
@@ -211,20 +191,301 @@ public class MainActivity extends Activity {
 
         } catch (Exception firstError) {
 
-            // فشل الإرسال: إغلاق الجلسة القديمة
             closeSession();
 
             currentStage = "إعادة الاتصال بعد فشل الإرسال";
 
-            // إنشاء جلسة جديدة
-            connectSession(ip);
+            connectOrDiscover(preferredIp);
 
-            // إعادة إرسال الأمر مرة واحدة
-            currentStage = "إعادة إرسال أمر التحكم";
+            currentStage = "إعادة إرسال الأمر";
 
             sendRemoteKey(key);
 
             lastKeySentAt = SystemClock.elapsedRealtime();
+        }
+    }
+
+    // =====================================================
+    // الاتصال بالعنوان المحفوظ أو اكتشاف عنوان جديد
+    // =====================================================
+
+    private void connectOrDiscover(String preferredIp)
+            throws Exception {
+
+        // المحاولة الأولى: آخر IP معروف
+        if (validIp(preferredIp)) {
+
+            try {
+
+                currentStage = "تجربة عنوان الرسيفر المحفوظ";
+
+                connectSession(preferredIp);
+
+                saveDiscoveredIp(preferredIp);
+
+                return;
+
+            } catch (Exception ignored) {
+
+                closeSession();
+            }
+        }
+
+        // المحاولة الثانية: البحث داخل شبكة Wi-Fi
+        currentStage = "استخراج نطاق شبكة Wi-Fi";
+
+        List<String> candidates = getLocalNetworkHosts();
+
+        if (candidates.isEmpty()) {
+            throw new Exception(
+                    "تعذر معرفة نطاق الشبكة. تأكد أن الهاتف متصل بشبكة Wi-Fi"
+            );
+        }
+
+        currentStage = "البحث عن منفذ G-MScreen 20000";
+
+        List<String> foundHosts = scanForReceiver(candidates);
+
+        if (foundHosts.isEmpty()) {
+            throw new Exception(
+                    "لم يتم العثور على جهاز يستجيب على منفذ 20000. "
+                    + "تأكد أن الهاتف والرسيفر على نفس شبكة Wi-Fi"
+            );
+        }
+
+        // لا نعتمد على فتح المنفذ فقط.
+        // نتحقق من مصافحة G-MScreen لكل جهاز مكتشف.
+
+        for (String candidate : foundHosts) {
+
+            try {
+
+                currentStage =
+                        "التحقق من بروتوكول G-MScreen: " + candidate;
+
+                closeSession();
+
+                connectSession(candidate);
+
+                saveDiscoveredIp(candidate);
+
+                return;
+
+            } catch (Exception ignored) {
+
+                closeSession();
+            }
+        }
+
+        throw new Exception(
+                "تم العثور على أجهزة في الشبكة، "
+                + "لكن لم ينجح أي منها في مصافحة G-MScreen"
+        );
+    }
+
+    // =====================================================
+    // حفظ عنوان الرسيفر المكتشف
+    // =====================================================
+
+    private void saveDiscoveredIp(String ip) {
+
+        if (validIp(ip)) {
+            prefs.edit()
+                    .putString("ip", ip)
+                    .apply();
+        }
+    }
+
+    // =====================================================
+    // استخراج عناوين الأجهزة في شبكة Wi-Fi
+    // =====================================================
+
+    private List<String> getLocalNetworkHosts()
+            throws Exception {
+
+        WifiManager wifiManager =
+                (WifiManager) getApplicationContext()
+                        .getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiManager == null) {
+            throw new Exception(
+                    "خدمة Wi-Fi غير متاحة"
+            );
+        }
+
+        DhcpInfo dhcp = wifiManager.getDhcpInfo();
+
+        if (dhcp == null || dhcp.ipAddress == 0) {
+            throw new Exception(
+                    "لم يتم الحصول على معلومات DHCP"
+            );
+        }
+
+        long phoneIp =
+                Integer.toUnsignedLong(dhcp.ipAddress);
+
+        long mask =
+                Integer.toUnsignedLong(dhcp.netmask);
+
+        // تحويل صيغة Android ذات الترتيب Little Endian
+        phoneIp = Integer.toUnsignedLong(
+                Integer.reverseBytes((int) phoneIp)
+        );
+
+        mask = Integer.toUnsignedLong(
+                Integer.reverseBytes((int) mask)
+        );
+
+        // إذا لم يوفر الراوتر Subnet Mask نستخدم /24
+        if (mask == 0) {
+            mask = 0xFFFFFF00L;
+        }
+
+        long network = phoneIp & mask;
+        long broadcast = network | (~mask & 0xFFFFFFFFL);
+
+        long hostCount = broadcast - network - 1;
+
+        if (hostCount <= 0) {
+            throw new Exception(
+                    "نطاق الشبكة غير صالح"
+            );
+        }
+
+        // حماية من مسح شبكات ضخمة بالخطأ
+        if (hostCount > 1022) {
+            throw new Exception(
+                    "نطاق الشبكة كبير جدًا للبحث التلقائي"
+            );
+        }
+
+        List<String> hosts = new ArrayList<>();
+
+        String phoneAddress = longToIp(phoneIp);
+
+        for (long address = network + 1;
+             address < broadcast;
+             address++) {
+
+            String host = longToIp(address);
+
+            if (!host.equals(phoneAddress)) {
+                hosts.add(host);
+            }
+        }
+
+        // تجربة العنوان المحفوظ أولاً إن كان داخل الشبكة
+        String savedIp = prefs.getString("ip", "");
+
+        if (validIp(savedIp) && hosts.remove(savedIp)) {
+            hosts.add(0, savedIp);
+        }
+
+        return hosts;
+    }
+
+    private String longToIp(long ip) {
+
+        return ((ip >> 24) & 255) + "."
+                + ((ip >> 16) & 255) + "."
+                + ((ip >> 8) & 255) + "."
+                + (ip & 255);
+    }
+
+    // =====================================================
+    // فحص الشبكة بالتوازي بحثًا عن المنفذ 20000
+    // =====================================================
+
+    private List<String> scanForReceiver(
+            List<String> hosts
+    ) throws Exception {
+
+        List<String> found = new ArrayList<>();
+
+        ExecutorService scanner =
+                Executors.newFixedThreadPool(32);
+
+        ExecutorCompletionService<String> completion =
+                new ExecutorCompletionService<>(scanner);
+
+        try {
+
+            for (String host : hosts) {
+
+                completion.submit(() -> {
+
+                    if (probeReceiverPort(host)) {
+                        return host;
+                    }
+
+                    return null;
+                });
+            }
+
+            int remaining = hosts.size();
+
+            long deadline =
+                    SystemClock.elapsedRealtime() + 10000;
+
+            while (remaining > 0) {
+
+                long timeLeft =
+                        deadline - SystemClock.elapsedRealtime();
+
+                if (timeLeft <= 0) {
+                    break;
+                }
+
+                java.util.concurrent.Future<String> future =
+                        completion.poll(
+                                timeLeft,
+                                TimeUnit.MILLISECONDS
+                        );
+
+                if (future == null) {
+                    break;
+                }
+
+                remaining--;
+
+                try {
+
+                    String host = future.get();
+
+                    if (host != null && !found.contains(host)) {
+                        found.add(host);
+                    }
+
+                } catch (Exception ignored) {
+                }
+            }
+
+        } finally {
+
+            scanner.shutdownNow();
+        }
+
+        return found;
+    }
+
+    // =====================================================
+    // اختبار فتح منفذ G-MScreen
+    // =====================================================
+
+    private boolean probeReceiverPort(String ip) {
+
+        try (Socket socket = new Socket()) {
+
+            socket.connect(
+                    new InetSocketAddress(ip, GMSCREEN_PORT),
+                    450
+            );
+
+            return socket.isConnected();
+
+        } catch (Exception ignored) {
+
+            return false;
         }
     }
 
@@ -254,7 +515,7 @@ public class MainActivity extends Activity {
         connectedIp = ip;
         sessionReady = false;
 
-        // الخطوة 1: إرسال مصافحة XML رقم 998
+        // المصافحة 998
 
         currentStage = "إرسال المصافحة 998";
 
@@ -264,78 +525,58 @@ public class MainActivity extends Activity {
 
         writeFrame(handshake);
 
-        // الخطوة 2: استقبال رسالة الترحيب 108 بايت
+        // استقبال الترحيب 108 بايت
 
-        currentStage = "استقبال رسالة الترحيب 108 بايت";
+        currentStage = "استقبال رسالة الترحيب";
 
         byte[] greeting = readExact(
                 receiverInput,
                 GREETING_SIZE
         );
 
-        if (greeting.length != GREETING_SIZE) {
-            throw new Exception(
-                    "حجم رسالة الترحيب غير صحيح"
-            );
-        }
-
         if (greeting[0] != '[' || greeting[1] != '[') {
             throw new Exception(
-                    "رسالة الترحيب لا تبدأ بالعلامة المتوقعة [["
+                    "رسالة الترحيب غير مطابقة"
             );
         }
 
-        // الخطوة 3: إرسال طلب معلومات الجهاز 15
+        // طلب معلومات الجهاز 15
 
         currentStage = "إرسال طلب معلومات الجهاز 15";
 
         writeFrame("{\"request\":\"15\"}");
 
-        // الخطوة 4: استقبال رد GCDH
+        // استقبال GCDH
 
-        currentStage = "استقبال رد طلب 15";
+        currentStage = "استقبال رد GCDH";
 
-        byte[] responsePacket = readResponsePacket(
-                receiverInput
-        );
+        byte[] responsePacket =
+                readResponsePacket(receiverInput);
 
-        if (responsePacket.length == 0) {
-            throw new Exception(
-                    "الرسيفر أرسل إقراراً فارغاً"
-            );
-        }
-
-        // الخطوة 5: فك الضغط وتحليل الرد
-
-        currentStage = "فك ضغط وتحليل معلومات الرسيفر";
-
-        String response = decodeResponseBytes(
-                responsePacket
-        ).trim();
+        String response =
+                decodeResponseBytes(responsePacket).trim();
 
         if (response.isEmpty()) {
-            throw new Exception(
-                    "رد معلومات الرسيفر فارغ"
-            );
+            throw new Exception("رد الرسيفر فارغ");
         }
 
-        Object parsed = new JSONTokener(response).nextValue();
+        Object parsed =
+                new JSONTokener(response).nextValue();
 
         if (!(parsed instanceof JSONObject)
                 && !(parsed instanceof org.json.JSONArray)) {
 
             throw new Exception(
-                    "رد طلب 15 ليس JSON صالحاً: " + response
+                    "رد الرسيفر ليس JSON صالحًا"
             );
         }
 
         sessionReady = true;
-
         currentStage = "الجلسة جاهزة";
     }
 
     // =====================================================
-    // إرسال أمر الريموت 1040
+    // إرسال أمر التحكم 1040
     // =====================================================
 
     private void sendRemoteKey(String key) throws Exception {
@@ -354,12 +595,11 @@ public class MainActivity extends Activity {
                         + key
                         + "\"}]}";
 
-        // إرسال الأمر دون انتظار رد من الرسيفر
         writeFrame(command);
     }
 
     // =====================================================
-    // التحقق من صلاحية الجلسة
+    // التحقق من الجلسة
     // =====================================================
 
     private boolean isSessionReady(String ip) {
@@ -377,20 +617,19 @@ public class MainActivity extends Activity {
     }
 
     // =====================================================
-    // إرسال البيانات بإطار G-MScreen
+    // إرسال إطار G-MScreen
     // =====================================================
 
     private void writeFrame(String payload) throws Exception {
 
         if (receiverOutput == null) {
             throw new Exception(
-                    "مجرى إرسال البيانات غير متاح"
+                    "مجرى الإرسال غير متاح"
             );
         }
 
-        byte[] body = payload.getBytes(
-                StandardCharsets.UTF_8
-        );
+        byte[] body =
+                payload.getBytes(StandardCharsets.UTF_8);
 
         String header = String.format(
                 Locale.US,
@@ -398,11 +637,10 @@ public class MainActivity extends Activity {
                 body.length
         );
 
-        byte[] headerBytes = header.getBytes(
-                StandardCharsets.US_ASCII
+        receiverOutput.write(
+                header.getBytes(StandardCharsets.US_ASCII)
         );
 
-        receiverOutput.write(headerBytes);
         receiverOutput.write(body);
         receiverOutput.flush();
     }
@@ -436,8 +674,7 @@ public class MainActivity extends Activity {
 
             if (count < 0) {
                 throw new EOFException(
-                        "انقطع الاتصال قبل اكتمال البيانات: "
-                                + offset + "/" + length
+                        "انقطع الاتصال أثناء استقبال البيانات"
                 );
             }
 
@@ -454,6 +691,7 @@ public class MainActivity extends Activity {
                 result[offset++] = (byte) one;
 
             } else {
+
                 offset += count;
             }
         }
@@ -486,13 +724,7 @@ public class MainActivity extends Activity {
 
         byte[] header = new byte[16];
 
-        System.arraycopy(
-                prefix,
-                0,
-                header,
-                0,
-                4
-        );
+        System.arraycopy(prefix, 0, header, 0, 4);
 
         System.arraycopy(
                 remainingHeader,
@@ -502,13 +734,13 @@ public class MainActivity extends Activity {
                 12
         );
 
-        // طول البيانات Little Endian
-
         int bodyLength =
                 (header[4] & 0xff)
                 | ((header[5] & 0xff) << 8);
 
-        if (bodyLength <= 0 || bodyLength > MAX_RESPONSE_SIZE) {
+        if (bodyLength <= 0
+                || bodyLength > MAX_RESPONSE_SIZE) {
+
             throw new Exception(
                     "طول بيانات GCDH غير صالح: " + bodyLength
             );
@@ -518,7 +750,7 @@ public class MainActivity extends Activity {
     }
 
     // =====================================================
-    // فك ضغط Zlib وتحليل رد الرسيفر
+    // فك ضغط Zlib
     // =====================================================
 
     private String decodeResponseBytes(
@@ -545,19 +777,8 @@ public class MainActivity extends Activity {
         String decoded;
 
         if (isZlib) {
-
-            try {
-                decoded = decompressZlib(bytes);
-
-            } catch (Exception e) {
-                throw new Exception(
-                        "فشل فك ضغط رد Zlib: "
-                                + e.getMessage()
-                );
-            }
-
+            decoded = decompressZlib(bytes);
         } else {
-
             decoded = new String(
                     bytes,
                     StandardCharsets.UTF_8
@@ -570,8 +791,7 @@ public class MainActivity extends Activity {
 
             decoded = decoded.substring(15);
         }
-
-        return decoded;
+return decoded;
     }
 
     private String decompressZlib(
@@ -599,7 +819,7 @@ public class MainActivity extends Activity {
 
                 if (total > MAX_RESPONSE_SIZE) {
                     throw new Exception(
-                            "حجم البيانات بعد فك الضغط تجاوز الحد المسموح"
+                            "حجم البيانات بعد فك الضغط كبير جدًا"
                     );
                 }
 
@@ -611,8 +831,7 @@ public class MainActivity extends Activity {
             );
         }
     }
-
-    // =====================================================
+       // =====================================================
     // إغلاق الجلسة
     // =====================================================
 
@@ -623,23 +842,17 @@ public class MainActivity extends Activity {
         lastKeySentAt = 0;
 
         try {
-            if (receiverInput != null) {
-                receiverInput.close();
-            }
+            if (receiverInput != null) receiverInput.close();
         } catch (Exception ignored) {
         }
 
         try {
-            if (receiverOutput != null) {
-                receiverOutput.close();
-            }
+            if (receiverOutput != null) receiverOutput.close();
         } catch (Exception ignored) {
         }
 
         try {
-            if (receiverSocket != null) {
-                receiverSocket.close();
-            }
+            if (receiverSocket != null) receiverSocket.close();
         } catch (Exception ignored) {
         }
 
@@ -651,8 +864,7 @@ public class MainActivity extends Activity {
     // =====================================================
     // التحقق من IP
     // =====================================================
-
-    private boolean validIp(String ip) {
+private boolean validIp(String ip) {
 
         if (ip == null
                 || !ip.matches(
@@ -676,7 +888,7 @@ public class MainActivity extends Activity {
     }
 
     // =====================================================
-    // عرض نتيجة العملية في واجهة الريموت
+    // عرض النتيجة
     // =====================================================
 
     private void report(
@@ -710,15 +922,10 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
 
         executor.execute(this::closeSession);
-
         executor.shutdown();
 
         if (webView != null) {
-
-            webView.removeJavascriptInterface(
-                    "Captain"
-            );
-
+            webView.removeJavascriptInterface("Captain");
             webView.destroy();
             webView = null;
         }
