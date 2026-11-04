@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.content.SharedPreferences;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity {
     private WebView webView;
     private SharedPreferences prefs;
 
+    // تنفيذ جميع أوامر الرسيفر بالترتيب
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
 
@@ -45,6 +47,9 @@ public class MainActivity extends Activity {
     private static final int GREETING_SIZE = 108;
     private static final int MAX_RESPONSE_SIZE = 1048576;
 
+    // إعادة إنشاء الجلسة بعد 45 ثانية من الخمول
+    private static final long IDLE_RECONNECT_MS = 45000;
+
     // الاتصال المستمر بالرسيفر
     private Socket receiverSocket;
     private InputStream receiverInput;
@@ -52,6 +57,11 @@ public class MainActivity extends Activity {
 
     private String connectedIp = null;
     private boolean sessionReady = false;
+
+    // وقت آخر أمر ناجح أُرسل للرسيفر
+    private long lastKeySentAt = 0;
+
+    private String currentStage = "جاهز";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,21 +138,12 @@ public class MainActivity extends Activity {
 
                 try {
 
-                    // إنشاء جلسة إذا لم تكن موجودة
-                    if (!isSessionReady(ip)) {
+                    report(
+                            false,
+                            "جاري تجهيز الاتصال وإرسال الأمر..."
+                    );
 
-                        closeSession();
-
-                        report(
-                                false,
-                                "جاري الاتصال بالرسيفر وإنشاء جلسة G-MScreen..."
-                        );
-
-                        connectSession(ip);
-                    }
-
-                    // إرسال أمر الزر بعد نجاح الجلسة
-                    sendRemoteKey(key);
+                    sendKeyWithRecovery(ip, key);
 
                     report(
                             true,
@@ -174,7 +175,58 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String currentStage = "جاهز";
+    // =====================================================
+    // إرسال الأمر مع معالجة الاتصال القديم
+    // =====================================================
+
+    private void sendKeyWithRecovery(
+            String ip,
+            String key
+    ) throws Exception {
+
+        boolean idleExpired =
+                lastKeySentAt == 0
+                || SystemClock.elapsedRealtime() - lastKeySentAt
+                        >= IDLE_RECONNECT_MS;
+
+        boolean needNewConnection =
+                !isSessionReady(ip) || idleExpired;
+
+        // إذا انتهت مدة الخمول، لا نستخدم الجلسة القديمة
+        if (needNewConnection) {
+
+            closeSession();
+
+            currentStage = "إعادة إنشاء جلسة G-MScreen";
+
+            connectSession(ip);
+        }
+
+        // محاولة إرسال الأمر
+        try {
+
+            sendRemoteKey(key);
+
+            lastKeySentAt = SystemClock.elapsedRealtime();
+
+        } catch (Exception firstError) {
+
+            // فشل الإرسال: إغلاق الجلسة القديمة
+            closeSession();
+
+            currentStage = "إعادة الاتصال بعد فشل الإرسال";
+
+            // إنشاء جلسة جديدة
+            connectSession(ip);
+
+            // إعادة إرسال الأمر مرة واحدة
+            currentStage = "إعادة إرسال أمر التحكم";
+
+            sendRemoteKey(key);
+
+            lastKeySentAt = SystemClock.elapsedRealtime();
+        }
+    }
 
     // =====================================================
     // إنشاء جلسة G-MScreen
@@ -202,9 +254,7 @@ public class MainActivity extends Activity {
         connectedIp = ip;
         sessionReady = false;
 
-        // -------------------------------------------------
         // الخطوة 1: إرسال مصافحة XML رقم 998
-        // -------------------------------------------------
 
         currentStage = "إرسال المصافحة 998";
 
@@ -214,9 +264,7 @@ public class MainActivity extends Activity {
 
         writeFrame(handshake);
 
-        // -------------------------------------------------
-        // الخطوة 2: استقبال رسالة الترحيب الخام 108 بايت
-        // -------------------------------------------------
+        // الخطوة 2: استقبال رسالة الترحيب 108 بايت
 
         currentStage = "استقبال رسالة الترحيب 108 بايت";
 
@@ -237,17 +285,13 @@ public class MainActivity extends Activity {
             );
         }
 
-        // -------------------------------------------------
         // الخطوة 3: إرسال طلب معلومات الجهاز 15
-        // -------------------------------------------------
 
         currentStage = "إرسال طلب معلومات الجهاز 15";
 
         writeFrame("{\"request\":\"15\"}");
 
-        // -------------------------------------------------
-        // الخطوة 4: استقبال رد GCDH وفك الضغط
-        // -------------------------------------------------
+        // الخطوة 4: استقبال رد GCDH
 
         currentStage = "استقبال رد طلب 15";
 
@@ -261,6 +305,8 @@ public class MainActivity extends Activity {
             );
         }
 
+        // الخطوة 5: فك الضغط وتحليل الرد
+
         currentStage = "فك ضغط وتحليل معلومات الرسيفر";
 
         String response = decodeResponseBytes(
@@ -273,7 +319,6 @@ public class MainActivity extends Activity {
             );
         }
 
-        // التأكد من أن الرد JSON صالح
         Object parsed = new JSONTokener(response).nextValue();
 
         if (!(parsed instanceof JSONObject)
@@ -284,11 +329,9 @@ public class MainActivity extends Activity {
             );
         }
 
-        // نجاح إنشاء الجلسة
         sessionReady = true;
 
         currentStage = "الجلسة جاهزة";
-
     }
 
     // =====================================================
@@ -311,10 +354,8 @@ public class MainActivity extends Activity {
                         + key
                         + "\"}]}";
 
-        // مطابق لطريقة Receiverpro:
         // إرسال الأمر دون انتظار رد من الرسيفر
         writeFrame(command);
-
     }
 
     // =====================================================
@@ -328,6 +369,9 @@ public class MainActivity extends Activity {
                 && receiverSocket.isConnected()
                 && !receiverSocket.isClosed()
                 && !receiverSocket.isOutputShutdown()
+                && !receiverSocket.isInputShutdown()
+                && receiverInput != null
+                && receiverOutput != null
                 && ip != null
                 && ip.equals(connectedIp);
     }
@@ -421,53 +465,58 @@ public class MainActivity extends Activity {
     // قراءة رد GCDH
     // =====================================================
 
-    
-private byte[] readResponsePacket(InputStream input) throws Exception {
+    private byte[] readResponsePacket(
+            InputStream input
+    ) throws Exception {
 
-    // قراءة بداية ترويسة GCDH
-    byte[] prefix = readExact(input, 4);
+        byte[] prefix = readExact(input, 4);
 
-    String magic = new String(
-            prefix,
-            StandardCharsets.US_ASCII
-    );
-
-    // لا نقبل ردًا غير مطابق للبروتوكول
-    if (!"GCDH".equals(magic)) {
-        throw new Exception(
-                "ترويسة رد الرسيفر غير صحيحة: " + magic
+        String magic = new String(
+                prefix,
+                StandardCharsets.US_ASCII
         );
+
+        if (!"GCDH".equals(magic)) {
+            throw new Exception(
+                    "ترويسة رد الرسيفر غير صحيحة: " + magic
+            );
+        }
+
+        byte[] remainingHeader = readExact(input, 12);
+
+        byte[] header = new byte[16];
+
+        System.arraycopy(
+                prefix,
+                0,
+                header,
+                0,
+                4
+        );
+
+        System.arraycopy(
+                remainingHeader,
+                0,
+                header,
+                4,
+                12
+        );
+
+        // طول البيانات Little Endian
+
+        int bodyLength =
+                (header[4] & 0xff)
+                | ((header[5] & 0xff) << 8);
+
+        if (bodyLength <= 0 || bodyLength > MAX_RESPONSE_SIZE) {
+            throw new Exception(
+                    "طول بيانات GCDH غير صالح: " + bodyLength
+            );
+        }
+
+        return readExact(input, bodyLength);
     }
 
-    // استكمال الترويسة حتى 16 بايت
-    byte[] remainingHeader = readExact(input, 12);
-
-    byte[] header = new byte[16];
-
-    System.arraycopy(prefix, 0, header, 0, 4);
-
-    System.arraycopy(
-            remainingHeader,
-            0,
-            header,
-            4,
-            12
-    );
-
-    // طول البيانات Little Endian
-    int bodyLength =
-            (header[4] & 0xff)
-            | ((header[5] & 0xff) << 8);
-
-    if (bodyLength <= 0 || bodyLength > MAX_RESPONSE_SIZE) {
-        throw new Exception(
-                "طول بيانات GCDH غير صالح: " + bodyLength
-        );
-    }
-
-    // قراءة جسم الرد كاملًا
-    return readExact(input, bodyLength);
-}
     // =====================================================
     // فك ضغط Zlib وتحليل رد الرسيفر
     // =====================================================
@@ -499,6 +548,7 @@ private byte[] readResponsePacket(InputStream input) throws Exception {
 
             try {
                 decoded = decompressZlib(bytes);
+
             } catch (Exception e) {
                 throw new Exception(
                         "فشل فك ضغط رد Zlib: "
@@ -514,7 +564,6 @@ private byte[] readResponsePacket(InputStream input) throws Exception {
             );
         }
 
-        // إزالة إطار Start...End إن وجد
         if (decoded.startsWith("Start")
                 && decoded.length() >= 15
                 && decoded.substring(12, 15).equals("End")) {
@@ -571,6 +620,7 @@ private byte[] readResponsePacket(InputStream input) throws Exception {
 
         sessionReady = false;
         connectedIp = null;
+        lastKeySentAt = 0;
 
         try {
             if (receiverInput != null) {
@@ -638,8 +688,7 @@ private byte[] readResponsePacket(InputStream input) throws Exception {
 
             if (webView != null) {
 
-                String safe =
-                        JSONObject.quote(message);
+                String safe = JSONObject.quote(message);
 
                 webView.evaluateJavascript(
                         "window.nativeResult("
